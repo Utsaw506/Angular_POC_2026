@@ -17,7 +17,7 @@ interface StorageModel {
   auditee: EvidenceSlot[];
 }
 
-const STORAGE_KEY = 'ANG18_ATTACHMENT_POC';
+const STORAGE_KEY = 'ANG18_ATTACHMENT_POC_ENHANCEMENT';
 
 @Component({
   selector: 'app-attachment-file-enhancement',
@@ -32,13 +32,11 @@ export class AttachmentFileEnhancementComponent {
   auditorSlots: EvidenceSlot[] = this.createSlots();
   auditeeSlots: EvidenceSlot[] = this.createSlots();
 
-  // Upload modal
   uploadOpen = false;
   uploadType: UserType = 'auditor';
   uploadSlotNo = 1;
   selectedFile: File | null = null;
 
-  // Editor modal
   editorOpen = false;
   editorType: UserType = 'auditor';
   editorSlotNo = 1;
@@ -52,7 +50,6 @@ export class AttachmentFileEnhancementComponent {
     }
   }
 
-  // ---------------- Slots ----------------
   private createSlots(): EvidenceSlot[] {
     return [1, 2, 3, 4].map((slot) => ({
       slot,
@@ -73,7 +70,6 @@ export class AttachmentFileEnhancementComponent {
     this.saveStorage();
   }
 
-  // ---------------- localStorage  ----------------
   private saveStorage() {
     if (!isPlatformBrowser(this.platformId)) return;
 
@@ -134,14 +130,12 @@ export class AttachmentFileEnhancementComponent {
         url: reader.result as string
       });
 
-      // ✅ close modal + reset picked file
       this.uploadOpen = false;
       this.selectedFile = null;
     };
     reader.readAsDataURL(this.selectedFile);
   }
 
-  // ---------------- Actions ----------------
   download(type: UserType, slotNo: number) {
     const slot = this.getSlots(type).find((x) => x.slot === slotNo);
     if (!slot?.url) return;
@@ -156,7 +150,6 @@ export class AttachmentFileEnhancementComponent {
     this.setSlot(type, slotNo, { url: null, caption: '', enlarged: false });
   }
 
-  // ---------------- Editor ----------------
   openEditor(type: UserType, slotNo: number) {
     const slot = this.getSlots(type).find((x) => x.slot === slotNo);
     if (!slot?.url) return;

@@ -16,7 +16,7 @@ interface StorageModel {
   auditee: EvidenceSlot[];
 }
 
-const STORAGE_KEY = 'ANG18_ATTACHMENT_POC';
+const STORAGE_KEY = 'ANG18_ATTACHMENT_POC_CURRENT';
 
 @Component({
   selector: 'app-attachment-file-current',
@@ -31,13 +31,11 @@ export class AttachmentFileCurrentComponent {
   auditorSlots: EvidenceSlot[] = this.createSlots();
   auditeeSlots: EvidenceSlot[] = this.createSlots();
 
-  // Upload modal
   uploadOpen = false;
   uploadType: UserType = 'auditor';
   uploadSlotNo = 1;
   selectedFile: File | null = null;
 
-  // Editor modal
   editorOpen = false;
   editorType: UserType = 'auditor';
   editorSlotNo = 1;
@@ -51,7 +49,6 @@ export class AttachmentFileCurrentComponent {
     }
   }
 
-  // ---------------- Slots ----------------
   private createSlots(): EvidenceSlot[] {
     return [1, 2, 3, 4].map((slot) => ({
       slot,
@@ -72,7 +69,6 @@ export class AttachmentFileCurrentComponent {
     this.saveStorage();
   }
 
-  // ---------------- localStorage  ----------------
   private saveStorage() {
     if (!isPlatformBrowser(this.platformId)) return;
 
@@ -106,7 +102,6 @@ export class AttachmentFileCurrentComponent {
     this.auditeeSlots = this.createSlots();
   }
 
-  // ---------------- Upload ----------------
   openUpload(type: UserType, slotNo: number) {
     this.uploadType = type;
     this.uploadSlotNo = slotNo;
@@ -139,7 +134,6 @@ export class AttachmentFileCurrentComponent {
     reader.readAsDataURL(this.selectedFile);
   }
 
-  // ---------------- Actions ----------------
   download(type: UserType, slotNo: number) {
     const slot = this.getSlots(type).find((x) => x.slot === slotNo);
     if (!slot?.url) return;
@@ -154,7 +148,6 @@ export class AttachmentFileCurrentComponent {
     this.setSlot(type, slotNo, { url: null, caption: '', enlarged: false });
   }
 
-  // ---------------- Editor ----------------
   openEditor(type: UserType, slotNo: number) {
     const slot = this.getSlots(type).find((x) => x.slot === slotNo);
     if (!slot?.url) return;
