@@ -34,8 +34,6 @@ interface Shape {
 })
 export class ImageEditorComponent implements AfterViewInit {
 
-  /* ---------------- Inputs / Outputs ---------------- */
-
   @Input() imageUrl = '';
   @Input() caption = '';
   @Input() enlarged = false;
@@ -43,13 +41,9 @@ export class ImageEditorComponent implements AfterViewInit {
   @Output() closed = new EventEmitter<void>();
   @Output() saved = new EventEmitter<any>();
 
-  /* ---------------- Canvas ---------------- */
-
   @ViewChild('canvas') canvasRef!: ElementRef<HTMLCanvasElement>;
   ctx!: CanvasRenderingContext2D;
   img = new Image();
-
-  /* ---------------- State ---------------- */
 
   currentTool: Tool = 'draw';
   drawColor = '#ff0000';
@@ -65,18 +59,17 @@ export class ImageEditorComponent implements AfterViewInit {
   drawnShapes: Shape[] = [];
   currentPath: { x: number; y: number }[] = [];
 
-  /* Crop */
+  /* ---------------- Crop ---------------- */
 
-  cropSelection:
-    { x: number; y: number; width: number; height: number } | null = null;
+  cropSelection: { x: number; y: number; width: number; height: number } | null = null;
 
   isDraggingCrop = false;
-  dragStartX = 0;
-  dragStartY = 0;
+  cropDragStartX = 0;
+  cropDragStartY = 0;
   cropStartX = 0;
   cropStartY = 0;
 
-  /* Shape Drag */
+  /* ---------------- Shape Drag ---------------- */
 
   isDraggingShape = false;
   draggedShapeIndex = -1;
@@ -147,6 +140,7 @@ export class ImageEditorComponent implements AfterViewInit {
     this.img.src = this.imageUrl;
 
     this.drawnShapes = [];
+    this.cropSelection = null;
   }
 
   /* ---------------- Mouse ---------------- */
@@ -154,6 +148,21 @@ export class ImageEditorComponent implements AfterViewInit {
   onMouseDown(ev: MouseEvent) {
     const { x, y } = this.getXY(ev);
 
+    /* ---- Crop Drag ---- */
+    if (
+      this.currentTool === 'crop' &&
+      this.cropSelection &&
+      this.isInsideCrop(x, y)
+    ) {
+      this.isDraggingCrop = true;
+      this.cropDragStartX = x;
+      this.cropDragStartY = y;
+      this.cropStartX = this.cropSelection.x;
+      this.cropStartY = this.cropSelection.y;
+      return;
+    }
+
+    /* ---- Shape Drag ---- */
     const shapeIndex = this.getShapeAtPoint(x, y);
     if (shapeIndex !== -1 && this.currentTool !== 'crop') {
       const s = this.drawnShapes[shapeIndex];
@@ -171,6 +180,8 @@ export class ImageEditorComponent implements AfterViewInit {
       return;
     }
 
+    /* ---- Start Drawing ---- */
+
     this.isDrawing = true;
     this.startX = x;
     this.startY = y;
@@ -185,12 +196,27 @@ export class ImageEditorComponent implements AfterViewInit {
   }
 
   onMouseMove(ev: MouseEvent) {
-    if (!this.isDrawing && !this.isDraggingShape) return;
+    if (!this.isDrawing && !this.isDraggingShape && !this.isDraggingCrop) return;
 
     const { x, y } = this.getXY(ev);
     this.lastX = x;
     this.lastY = y;
 
+    /* ---- Drag Crop ---- */
+    if (this.isDraggingCrop && this.cropSelection) {
+      const dx = x - this.cropDragStartX;
+      const dy = y - this.cropDragStartY;
+
+      this.cropSelection.x = this.cropStartX + dx;
+      this.cropSelection.y = this.cropStartY + dy;
+
+      this.redrawBase();
+      this.drawCropOverlay();
+      this.redrawShapes();
+      return;
+    }
+
+    /* ---- Drag Shape ---- */
     if (this.isDraggingShape) {
       const dx = x - this.dragShapeStartX;
       const dy = y - this.dragShapeStartY;
@@ -205,6 +231,8 @@ export class ImageEditorComponent implements AfterViewInit {
       this.redrawShapes();
       return;
     }
+
+    if (!this.isDrawing) return;
 
     this.redrawBase();
 
@@ -224,13 +252,18 @@ export class ImageEditorComponent implements AfterViewInit {
     if (this.currentTool === 'crop' && this.cropSelection) {
       this.cropSelection.width = x - this.startX;
       this.cropSelection.height = y - this.startY;
-      this.drawCrop();
+      this.drawCropOverlay();
     }
 
     this.redrawShapes();
   }
 
   onMouseUp() {
+    if (this.isDraggingCrop) {
+      this.isDraggingCrop = false;
+      return;
+    }
+
     if (this.isDraggingShape) {
       this.isDraggingShape = false;
       return;
@@ -273,17 +306,23 @@ export class ImageEditorComponent implements AfterViewInit {
     this.ctx.stroke();
   }
 
-  drawCrop() {
+  drawCropOverlay() {
     if (!this.cropSelection) return;
+
+    const { x, y, width, height } = this.cropSelection;
+    const c = this.canvasRef.nativeElement;
+
     this.ctx.setLineDash([6, 6]);
-    this.ctx.strokeStyle = '#0066ff';
-    this.ctx.strokeRect(
-      this.cropSelection.x,
-      this.cropSelection.y,
-      this.cropSelection.width,
-      this.cropSelection.height
-    );
+    this.ctx.strokeStyle = '#1e90ff';
+    this.ctx.lineWidth = 2;
+    this.ctx.strokeRect(x, y, width, height);
     this.ctx.setLineDash([]);
+
+    this.ctx.fillStyle = 'rgba(0,0,0,0.45)';
+    this.ctx.fillRect(0, 0, c.width, y);
+    this.ctx.fillRect(0, y + height, c.width, c.height);
+    this.ctx.fillRect(0, y, x, height);
+    this.ctx.fillRect(x + width, y, c.width, height);
   }
 
   saveShape() {
@@ -333,6 +372,14 @@ export class ImageEditorComponent implements AfterViewInit {
       ) return i;
     }
     return -1;
+  }
+
+  isInsideCrop(x: number, y: number) {
+    return !!this.cropSelection &&
+      x >= this.cropSelection.x &&
+      x <= this.cropSelection.x + this.cropSelection.width &&
+      y >= this.cropSelection.y &&
+      y <= this.cropSelection.y + this.cropSelection.height;
   }
 
   getXY(ev: MouseEvent) {
