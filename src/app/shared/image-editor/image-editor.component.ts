@@ -145,8 +145,8 @@ export class ImageEditorComponent implements AfterViewInit {
 
     // Crop drag
     if (this.currentTool === 'crop' &&
-        this.cropSelection &&
-        this.isInsideCrop(x, y)) {
+      this.cropSelection &&
+      this.isInsideCrop(x, y)) {
 
       this.isDraggingCrop = true;
       this.cropDragStartX = x;
@@ -192,8 +192,8 @@ export class ImageEditorComponent implements AfterViewInit {
   onMouseMove(ev: MouseEvent) {
 
     if (!this.isDrawing &&
-        !this.isDraggingShape &&
-        !this.isDraggingCrop) return;
+      !this.isDraggingShape &&
+      !this.isDraggingCrop) return;
 
     const { x, y } = this.getXY(ev);
     this.lastX = x;
@@ -240,12 +240,12 @@ export class ImageEditorComponent implements AfterViewInit {
     }
 
     if (this.currentTool === 'rectangle' ||
-        this.currentTool === 'dottedRectangle') {
+      this.currentTool === 'dottedRectangle') {
       this.drawRect(this.startX, this.startY, x, y);
     }
 
     if (this.currentTool === 'circle' ||
-        this.currentTool === 'dottedCircle') {
+      this.currentTool === 'dottedCircle') {
       this.drawCircle(this.startX, this.startY, x, y);
     }
 
@@ -350,18 +350,40 @@ export class ImageEditorComponent implements AfterViewInit {
 
   redrawShapes() {
     for (const s of this.drawnShapes) {
+
       this.ctx.strokeStyle = s.color;
       this.ctx.lineWidth = s.width;
 
-      if (s.type === 'draw') this.drawPath(s.points);
-      if (s.type.includes('rectangle') || s.type.includes('dottedRectangle') )
-        this.drawRect(s.points[0].x, s.points[0].y,
-                      s.points[1].x, s.points[1].y);
-      if (s.type.includes('circle') || s.type.includes('dottedCircle') )
-        this.drawCircle(s.points[0].x, s.points[0].y,
-                        s.points[1].x, s.points[1].y);
+      if (s.type === 'draw') {
+        this.drawPath(s.points);
+      }
+
+      if (
+        s.type === 'rectangle' ||
+        s.type === 'dottedRectangle'
+      ) {
+        this.drawRect(
+          s.points[0].x,
+          s.points[0].y,
+          s.points[1].x,
+          s.points[1].y
+        );
+      }
+
+      if (
+        s.type === 'circle' ||
+        s.type === 'dottedCircle'
+      ) {
+        this.drawCircle(
+          s.points[0].x,
+          s.points[0].y,
+          s.points[1].x,
+          s.points[1].y
+        );
+      }
     }
   }
+
 
   /* HIT TESTING */
 
@@ -369,7 +391,8 @@ export class ImageEditorComponent implements AfterViewInit {
     for (let i = this.drawnShapes.length - 1; i >= 0; i--) {
       const s = this.drawnShapes[i];
 
-      if (s.type.includes('rectangle') || s.type === ('dottedCircle') ) {
+      if (s.type === 'rectangle' ||
+        s.type === 'dottedRectangle') {
         if (
           x >= Math.min(s.points[0].x, s.points[1].x) &&
           x <= Math.max(s.points[0].x, s.points[1].x) &&
@@ -378,7 +401,8 @@ export class ImageEditorComponent implements AfterViewInit {
         ) return i;
       }
 
-      if (s.type.includes('circle') || s.type === ('dottedRectangle')) {
+      if (s.type === 'circle' ||
+        s.type === 'dottedCircle') {
         if (this.isInsideCircle(x, y, s.points[0], s.points[1]))
           return i;
       }
