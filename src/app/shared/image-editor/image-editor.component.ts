@@ -34,6 +34,7 @@ interface Shape {
 })
 export class ImageEditorComponent implements AfterViewInit {
 
+
   @Input() imageUrl = '';
   @Input() caption = '';
   @Input() enlarged = false;
@@ -41,13 +42,17 @@ export class ImageEditorComponent implements AfterViewInit {
   @Output() closed = new EventEmitter<void>();
   @Output() saved = new EventEmitter<any>();
 
+
   @ViewChild('canvas') canvasRef!: ElementRef<HTMLCanvasElement>;
   ctx!: CanvasRenderingContext2D;
   img = new Image();
 
+
   currentTool: Tool = 'draw';
   drawColor = '#ff0000';
   lineWidth = 3;
+  brightness = 100;
+
 
   isDrawing = false;
   startX = 0;
@@ -58,7 +63,7 @@ export class ImageEditorComponent implements AfterViewInit {
   drawnShapes: Shape[] = [];
   currentPath: { x: number; y: number }[] = [];
 
-  /* Crop */
+
   cropSelection:
     { x: number; y: number; width: number; height: number } | null = null;
 
@@ -68,17 +73,18 @@ export class ImageEditorComponent implements AfterViewInit {
   cropStartX = 0;
   cropStartY = 0;
 
-  /* Shape Drag */
+
   isDraggingShape = false;
   draggedShapeIndex = -1;
   dragShapeStartX = 0;
   dragShapeStartY = 0;
+
   shapeStartX = 0;
   shapeStartY = 0;
   shapeStartX2 = 0;
   shapeStartY2 = 0;
 
-  /* Init */
+
   ngAfterViewInit() {
     this.ctx = this.canvasRef.nativeElement.getContext('2d')!;
     this.loadImage();
@@ -94,6 +100,7 @@ export class ImageEditorComponent implements AfterViewInit {
     this.img.src = this.imageUrl;
   }
 
+
   setTool(t: Tool) {
     if (this.currentTool === 'crop' && t !== 'crop') {
       this.cropSelection = null;
@@ -105,8 +112,10 @@ export class ImageEditorComponent implements AfterViewInit {
     this.drawnShapes = [];
     this.cropSelection = null;
     this.currentTool = 'draw';
+    this.brightness = 100;
     this.loadImage();
   }
+
 
   rotate(dir: 'left' | 'right') {
 
@@ -128,8 +137,11 @@ export class ImageEditorComponent implements AfterViewInit {
 
     canvas.width = rotated.width;
     canvas.height = rotated.height;
+
     this.ctx = canvas.getContext('2d')!;
+    this.ctx.filter = `brightness(${this.brightness}%)`;
     this.ctx.drawImage(rotated, 0, 0);
+    this.ctx.filter = 'none';
 
     this.imageUrl = canvas.toDataURL();
     this.img.src = this.imageUrl;
@@ -138,16 +150,15 @@ export class ImageEditorComponent implements AfterViewInit {
     this.cropSelection = null;
   }
 
-  /* Mouse */
 
   onMouseDown(ev: MouseEvent) {
     const { x, y } = this.getXY(ev);
 
-    // Crop drag
-    if (this.currentTool === 'crop' &&
+    if (
+      this.currentTool === 'crop' &&
       this.cropSelection &&
-      this.isInsideCrop(x, y)) {
-
+      this.isInsideCrop(x, y)
+    ) {
       this.isDraggingCrop = true;
       this.cropDragStartX = x;
       this.cropDragStartY = y;
@@ -156,7 +167,6 @@ export class ImageEditorComponent implements AfterViewInit {
       return;
     }
 
-    // Shape drag
     const shapeIndex = this.getShapeAtPoint(x, y);
     if (shapeIndex !== -1 && this.currentTool !== 'crop') {
 
@@ -175,7 +185,6 @@ export class ImageEditorComponent implements AfterViewInit {
       return;
     }
 
-    // Draw
     this.isDrawing = true;
     this.startX = x;
     this.startY = y;
@@ -199,7 +208,6 @@ export class ImageEditorComponent implements AfterViewInit {
     this.lastX = x;
     this.lastY = y;
 
-    // Drag crop
     if (this.isDraggingCrop && this.cropSelection) {
 
       const dx = x - this.cropDragStartX;
@@ -214,7 +222,6 @@ export class ImageEditorComponent implements AfterViewInit {
       return;
     }
 
-    // Drag shape
     if (this.isDraggingShape) {
 
       const dx = x - this.dragShapeStartX;
@@ -231,7 +238,6 @@ export class ImageEditorComponent implements AfterViewInit {
       return;
     }
 
-    // Drawing preview
     this.redrawBase();
 
     if (this.currentTool === 'draw') {
@@ -279,12 +285,14 @@ export class ImageEditorComponent implements AfterViewInit {
     this.isDrawing = false;
   }
 
-  /* Drawing helpers */
 
   redrawBase() {
     const c = this.canvasRef.nativeElement;
     this.ctx.clearRect(0, 0, c.width, c.height);
+
+    this.ctx.filter = `brightness(${this.brightness}%)`;
     this.ctx.drawImage(this.img, 0, 0);
+    this.ctx.filter = 'none';
   }
 
   drawPath(pts: any[]) {
@@ -354,45 +362,33 @@ export class ImageEditorComponent implements AfterViewInit {
       this.ctx.strokeStyle = s.color;
       this.ctx.lineWidth = s.width;
 
-      if (s.type === 'draw') {
-        this.drawPath(s.points);
-      }
+      if (s.type === 'draw') this.drawPath(s.points);
 
-      if (
-        s.type === 'rectangle' ||
-        s.type === 'dottedRectangle'
-      ) {
+      if (s.type === 'rectangle' || s.type === 'dottedRectangle') {
         this.drawRect(
-          s.points[0].x,
-          s.points[0].y,
-          s.points[1].x,
-          s.points[1].y
+          s.points[0].x, s.points[0].y,
+          s.points[1].x, s.points[1].y
         );
       }
 
-      if (
-        s.type === 'circle' ||
-        s.type === 'dottedCircle'
-      ) {
+      if (s.type === 'circle' || s.type === 'dottedCircle') {
         this.drawCircle(
-          s.points[0].x,
-          s.points[0].y,
-          s.points[1].x,
-          s.points[1].y
+          s.points[0].x, s.points[0].y,
+          s.points[1].x, s.points[1].y
         );
       }
     }
   }
 
 
-  /* HIT TESTING */
-
   getShapeAtPoint(x: number, y: number) {
+
     for (let i = this.drawnShapes.length - 1; i >= 0; i--) {
+
       const s = this.drawnShapes[i];
 
-      if (s.type === 'rectangle' ||
-        s.type === 'dottedRectangle') {
+      if (s.type === 'rectangle' || s.type === 'dottedRectangle') {
+
         if (
           x >= Math.min(s.points[0].x, s.points[1].x) &&
           x <= Math.max(s.points[0].x, s.points[1].x) &&
@@ -401,8 +397,8 @@ export class ImageEditorComponent implements AfterViewInit {
         ) return i;
       }
 
-      if (s.type === 'circle' ||
-        s.type === 'dottedCircle') {
+      if (s.type === 'circle' || s.type === 'dottedCircle') {
+
         if (this.isInsideCircle(x, y, s.points[0], s.points[1]))
           return i;
       }
@@ -440,6 +436,7 @@ export class ImageEditorComponent implements AfterViewInit {
   }
 
   applyCrop() {
+
     if (!this.cropSelection) return;
 
     const { x, y, width, height } = this.cropSelection;
@@ -454,7 +451,12 @@ export class ImageEditorComponent implements AfterViewInit {
     const c = this.canvasRef.nativeElement;
     c.width = Math.abs(width);
     c.height = Math.abs(height);
+
     this.ctx.putImageData(data, 0, 0);
+
+    this.ctx.filter = `brightness(${this.brightness}%)`;
+    this.ctx.drawImage(c, 0, 0);
+    this.ctx.filter = 'none';
 
     this.imageUrl = c.toDataURL();
     this.img.src = this.imageUrl;

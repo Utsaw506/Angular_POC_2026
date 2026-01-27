@@ -1,7 +1,6 @@
 <div class="backdrop">
   <div class="editor-modal">
 
-    <!-- Toolbar -->
     <div class="toolbar">
 
       <button class="tool" (click)="setTool('draw')" [class.active]="currentTool==='draw'">✏</button>
@@ -21,9 +20,16 @@
       <span class="label">Width:</span>
       <input type="range" min="1" max="20" [(ngModel)]="lineWidth">
 
+      <!--Brightness -->
+      <span class="label">Brightness:</span>
+      <input type="range" min="50" max="200" [(ngModel)]="brightness" (input)="redrawBase(); redrawShapes()">
+
+      <!-- Actions -->
       <button class="action" (click)="reset()">Reset</button>
 
-      <button class="action" (click)="setTool('crop')" [class.active]="currentTool==='crop'">Crop</button>
+      <button class="action" (click)="setTool('crop')" [class.active]="currentTool==='crop'">
+        Crop
+      </button>
 
       <button class="action" *ngIf="currentTool==='crop' && cropSelection !== null" (click)="applyCrop()">
         Apply Crop
@@ -34,14 +40,14 @@
 
     </div>
 
-    <!-- Canvas -->
+
     <div class="canvas-area">
       <canvas #canvas (mousedown)="onMouseDown($event)" (mousemove)="onMouseMove($event)" (mouseup)="onMouseUp()"
         (mouseleave)="onMouseUp()">
       </canvas>
     </div>
 
-    <!-- Footer -->
+
     <div class="footer">
 
       <label class="checkbox">
