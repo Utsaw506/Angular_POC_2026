@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { ImageEditorComponent } from '../shared/image-editor/image-editor.component';
 
 type UserType = 'auditor' | 'auditee';
-
 interface EvidenceSlot {
   slot: number;
   url: string | null;
