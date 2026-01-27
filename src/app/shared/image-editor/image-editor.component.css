@@ -1,0 +1,148 @@
+/* Background overlay */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: grid;
+  place-items: center;
+  z-index: 99999;
+}
+
+/* Main editor box */
+.editor-modal {
+  width: 92%;
+  height: 92%;
+  background: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+}
+
+/* Toolbar */
+.toolbar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  background: #ffffff;
+}
+
+.tool,
+.action {
+  background: #b30000;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.tool {
+  font-size: 18px;
+  padding: 10px 16px;
+}
+
+.tool.active {
+  outline: 3px solid rgba(179, 0, 0, 0.35);
+}
+
+.label {
+  font-weight: 700;
+  margin-left: 10px;
+  font-size: 14px;
+}
+
+/* Canvas section */
+.canvas-area {
+  flex: 1;
+  background: #f8f8f8;
+  padding: 14px;
+  overflow: auto;
+  display: grid;
+  place-items: center;
+}
+
+/* Canvas itself */
+.canvas-area canvas {
+  max-width: 85%;
+  max-height: 85%;
+  border: 1px solid #ddd;
+  background: white;
+  display: block;
+}
+
+/* Footer */
+.footer {
+  background: #f1f1f1;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  border-top: 1px solid #ddd;
+}
+
+/* Checkbox */
+.checkbox {
+  font-weight: 600;
+  font-size: 14px;
+  color: #222;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* Caption */
+.caption-box {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.caption-box input {
+  height: 34px;
+  padding: 0 10px;
+  width: 240px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  outline: none;
+}
+
+.caption-box input:focus {
+  border-color: #b30000;
+}
+
+.count {
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+/* Footer buttons */
+.footer-btns {
+  display: flex;
+  gap: 12px;
+}
+
+.btn {
+  border: none;
+  cursor: pointer;
+  border-radius: 10px;
+  padding: 10px 18px;
+  font-weight: 800;
+}
+
+.btn.save {
+  background: #b30000;
+  color: white;
+}
+
+.btn.close {
+  background: #b30000;
+  opacity: 0.85;
+  color: white;
+}

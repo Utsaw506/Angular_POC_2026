@@ -1,0 +1,124 @@
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="head-title">DEPARTMENT – TALENT ACQUISITION & INDUCTION</div>
+    <button class="reset-btn" (click)="resetAll()">Reset</button>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab" [class.active]="tab==='snapshot'" (click)="tab='snapshot'" title="Snapshot Preview">
+            Snapshot Preview
+        </button>
+    <!-- <button class="tab" [class.active]="tab==='common'" (click)="tab='common'">
+      Common Document Area
+    </button> -->
+  </div>
+
+  <!-- Snapshot Preview -->
+  <div *ngIf="tab==='snapshot'" class="body">
+
+    <!-- Auditor Snapshot -->
+    <h3>Auditor Snapshot</h3>
+    <div class="slots">
+      <div class="slot" *ngFor="let s of auditorSlots">
+        <div class="slot-head">
+          <span class="slot-no">{{s.slot}}</span>
+
+          <div class="icons" *ngIf="s.url">
+            <button title="Download" (click)="download('auditor', s.slot)">⬇</button>
+            <button title="Edit" (click)="openEditor('auditor', s.slot)">✏</button>
+            <button title="Delete" (click)="delete('auditor', s.slot)">🗑</button>
+          </div>
+        </div>
+
+        <div class="slot-body">
+          <ng-container *ngIf="s.url; else plusAuditor">
+            <img [src]="s.url" alt="Auditor Snapshot" />
+          </ng-container>
+
+          <ng-template #plusAuditor>
+            <div class="plus" (click)="openUpload('auditor', s.slot)">＋</div>
+          </ng-template>
+        </div>
+
+        <div class="caption">{{s.caption}}</div>
+      </div>
+    </div>
+
+    <!-- Auditee Snapshot -->
+    <!--
+    <h3 style="margin-top: 24px;">Auditee Snapshot</h3>
+    <div class="slots">
+      <div class="slot" *ngFor="let s of auditeeSlots">
+        <div class="slot-head">
+          <span class="slot-no">{{s.slot}}</span>
+
+          <div class="icons" *ngIf="s.url">
+            <button title="Download" (click)="download('auditee', s.slot)">⬇</button>
+            <button title="Edit" (click)="openEditor('auditee', s.slot)">✏</button>
+            <button title="Delete" (click)="delete('auditee', s.slot)">🗑</button>
+          </div>
+        </div>
+
+        <div class="slot-body">
+          <ng-container *ngIf="s.url; else plusAuditee">
+            <img [src]="s.url" alt="Auditee Snapshot" />
+          </ng-container>
+
+          <ng-template #plusAuditee>
+            <div class="plus" (click)="openUpload('auditee', s.slot)">＋</div>
+          </ng-template>
+        </div>
+
+        <div class="caption">{{s.caption}}</div>
+      </div>
+    </div>
+    -->
+    
+  </div>
+
+  <!-- Common Document Area -->
+  <div *ngIf="tab==='common'" class="body">
+    <div class="card">
+      <h3>Common Document Area (POC)</h3>
+      <p>We can implement this later.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Upload Modal -->
+<div class="modal-backdrop" *ngIf="uploadOpen">
+  <div class="modal">
+    <div class="modal-header">File Upload</div>
+
+    <div class="drop-zone">
+      <input type="file" accept="image/*" (change)="onFilePicked($event)" />
+      <div class="drop-text">
+        Drag and drop your file here or click to browse
+      </div>
+    </div>
+
+    <!-- Selected File Preview -->
+    <div class="selected-file" *ngIf="selectedFile">
+      <span class="file-name">{{ selectedFile.name }}</span>
+      <button class="remove-file" title="Remove" (click)="clearSelectedFile()">✕</button>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn primary" [disabled]="!selectedFile" (click)="uploadNow()">Upload</button>
+      <button class="btn" (click)="uploadOpen=false">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Editor Modal -->
+<app-image-editor
+  *ngIf="editorOpen"
+  [imageUrl]="editorImageUrl"
+  [caption]="editorCaption"
+  [enlarged]="editorEnlarged"
+  (closed)="editorOpen=false"
+  (saved)="onEditorSaved($event)">
+</app-image-editor>

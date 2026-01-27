@@ -1,0 +1,56 @@
+<div class="backdrop">
+  <div class="editor-modal">
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <button class="tool" (click)="setTool('pen')" [class.active]="tool==='pen'">✏</button>
+      <button class="tool" (click)="setTool('crop')" [class.active]="tool==='crop'">▭</button>
+
+      <span class="label">Color:</span>
+      <input type="color" [(ngModel)]="color" />
+
+      <span class="label">Width:</span>
+      <input type="range" min="1" max="20" [(ngModel)]="width" />
+
+      <button class="action" (click)="reset()">Reset</button>
+
+      <button class="action" *ngIf="tool==='crop' && cropRect" (click)="applyCrop()">
+        Apply Crop
+      </button>
+
+      <button class="action" (click)="rotate('left')">⟲</button>
+      <button class="action" (click)="rotate('right')">⟳</button>
+    </div>
+
+    <!-- Canvas Area -->
+    <div class="canvas-area">
+      <canvas
+        #canvas
+        (mousedown)="onMouseDown($event)"
+        (mousemove)="onMouseMove($event)"
+        (mouseup)="onMouseUp()"
+        (mouseleave)="onMouseUp()"
+      ></canvas>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <label class="checkbox">
+        <input type="checkbox" [(ngModel)]="enlarged" />
+        Enable enlarged view in final report.
+      </label>
+
+      <div class="caption-box">
+        <label>Caption:</label>
+        <input maxlength="30" [(ngModel)]="caption" />
+        <span class="count">{{caption.length}}/30</span>
+      </div>
+
+      <div class="footer-btns">
+        <button class="btn save" (click)="save()">Save</button>
+        <button class="btn close" (click)="closed.emit()">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
