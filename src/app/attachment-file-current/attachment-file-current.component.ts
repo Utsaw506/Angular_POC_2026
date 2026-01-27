@@ -2,6 +2,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Component, Inject, PLATFORM_ID } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ImageEditorComponent } from '../shared/image-editor/image-editor.component';
+// import { ImageEditorOldComponent } from "../shared/image-editor-old/image-editor-old.component";
 
 type UserType = 'auditor' | 'auditee';
 interface EvidenceSlot {
@@ -170,4 +171,12 @@ export class AttachmentFileCurrentComponent {
     });
     this.editorOpen = false;
   }
+///for old editor
+//   onEditorSavedold(base64: string) {
+//   this.setSlot(this.editorType, this.editorSlotNo, {
+//     url: base64
+//   });
+//   this.editorOpen = false;
+// }
+
 }

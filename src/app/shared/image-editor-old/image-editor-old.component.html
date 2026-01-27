@@ -1,0 +1,39 @@
+<div class="editor-backdrop">
+
+  <div class="editor-box">
+
+    <!-- TOOLBAR -->
+    <div class="toolbar">
+
+      <button (click)="currentTool='draw'">✏</button>
+      <button (click)="currentTool='rectangle'">▭</button>
+      <button (click)="currentTool='circle'">◯</button>
+      <button (click)="currentTool='crop'">Crop</button>
+
+      <input type="color" [(ngModel)]="drawColor">
+      <input type="range" min="1" max="20" [(ngModel)]="lineWidth">
+
+      <button (click)="applyCrop()">Apply Crop</button>
+      <button (click)="rotate(-90)">⟲</button>
+      <button (click)="rotate(90)">⟳</button>
+      <button (click)="reset()">Reset</button>
+
+    </div>
+
+    <!-- CANVAS -->
+    <canvas #canvas
+      (mousedown)="start($event)"
+      (mousemove)="move($event)"
+      (mouseup)="end()"
+      (mouseleave)="end()">
+    </canvas>
+
+    <!-- FOOTER -->
+    <div class="footer">
+      <button (click)="saveImage()">Save</button>
+      <button (click)="close.emit()">Close</button>
+    </div>
+
+  </div>
+
+</div>
