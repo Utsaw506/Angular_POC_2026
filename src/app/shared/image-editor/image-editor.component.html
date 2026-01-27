@@ -25,7 +25,8 @@
 
       <button class="tool" (click)="setTool('crop')" [class.active]="currentTool==='crop'">Crop</button>
 
-      <button class="action" *ngIf="currentTool==='crop' && cropRect" (click)="applyCrop()">
+      <!-- ✅ FIXED -->
+      <button class="action" *ngIf="currentTool==='crop' && cropSelection !== null" (click)="applyCrop()">
         Apply Crop
       </button>
 
@@ -33,10 +34,10 @@
       <button class="action" (click)="rotate('right')">⟳</button>
 
     </div>
-<!-- (mousemove)="onMouseMove($event); draw($event)" -->
+
     <!-- Canvas -->
     <div class="canvas-area">
-      <canvas #canvas (mousedown)="onMouseDown($event)"  (mousemove)="onMouseMoveold($event); draw($event)" (mouseup)="onMouseUp()"
+      <canvas #canvas (mousedown)="onMouseDown($event)" (mousemove)="onMouseMove($event)" (mouseup)="onMouseUp()"
         (mouseleave)="onMouseUp()">
       </canvas>
     </div>

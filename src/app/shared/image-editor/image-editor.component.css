@@ -1,3 +1,165 @@
+/* file-upload.component.scss */
+
+.upload-container {
+  padding: 0px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+  margin-bottom: 10px;
+
+  input {
+    background: #fff;
+    border: 1px solid #d3d3d3;
+    border-radius: 5px;
+    height: 26px;
+    padding: 0px 10px;
+    font-weight: 400;
+    font-size: 11px;
+    font-family: "Poppins", sans-serif;
+    line-height: 25px;
+    color: #414042;
+    width: 100%;
+
+    &::-webkit-input-placeholder {
+      color: #414042;
+    }
+
+    &:focus-visible {
+      outline: -webkit-focus-ring-color auto 0px;
+    }
+  }
+
+  .cus_button {
+    .button_cus {
+      width: auto;
+      padding: 0px 12px;
+      height: 26px;
+      background: #b00003 !important;
+      border-radius: 5px;
+      font-weight: 400;
+      font-size: 11px;
+      line-height: 26px;
+      box-shadow: none !important;
+      color: #fff !important;
+      border: 0px;
+      font-family: "Poppins", sans-serif;
+      cursor: pointer;
+    }
+  }
+}
+
+.drop-zone {
+  border: 2px dashed #ccc;
+  border-radius: 4px;
+  width: 100%;
+  padding: 12px;
+  text-align: center;
+  transition: border-color 0.3s, background-color 0.3s;
+  cursor: pointer;
+
+  &:hover {
+    border-color: #b00003;
+    background-color: rgb(176 0 3 / 3%);
+  }
+
+  .upload-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: #b00003;
+  }
+
+  h3 {
+    margin: 5px 0px;
+    line-height: 10px;
+    font-size: 13px;
+    font-family: "Poppins", sans-serif;
+    font-weight: 400;
+  }
+
+  p {
+    font-family: "Poppins", sans-serif;
+  }
+}
+
+.file-list {
+  margin-top: 2rem;
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  position: relative;
+
+  .file-icon {
+    margin-right: 1rem;
+    color: #757575;
+  }
+
+  .file-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .file-name {
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+    word-break: break-all;
+  }
+
+  .file-size {
+    color: #757575;
+    font-size: 0.8rem;
+  }
+
+  mat-progress-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+  }
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.disabled-editor {
+  &:hover {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+
+    .ql-container {
+      background-color: #f5f5f5;
+      border-color: #ccc;
+    }
+
+    .ql-toolbar {
+      background-color: #f5f5f5;
+      opacity: 0.7;
+    }
+  }
+
+  .ql-container {
+    background-color: #fafafa;
+  }
+
+  .ql-toolbar {
+    opacity: 0.7;
+  }
+}
+
+/* ================= IMAGE EDITOR ================= */
+
 .backdrop {
   position: fixed;
   inset: 0;
@@ -5,10 +167,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 99999;
+  z-index: 1000;
 }
-
-
 
 .editor-modal {
   width: 92vw;
@@ -21,9 +181,7 @@
   box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
 }
 
-
-
-.toolbar {
+.editor-modal .toolbar {
   flex-shrink: 0;
   display: flex;
   gap: 10px;
@@ -33,10 +191,9 @@
   background: #ffffff;
 }
 
-
-.tool,
-.action {
-  background: #b30000;
+.editor-modal .tool,
+.editor-modal .action {
+  background: #b00003;
   color: white;
   border: none;
   cursor: pointer;
@@ -46,22 +203,20 @@
   font-weight: 700;
 }
 
-.tool {
+.editor-modal .tool {
   font-size: 18px;
   padding: 10px 16px;
 }
 
-.tool.active {
-  outline: 3px solid rgba(179, 0, 0, 0.35);
+.editor-modal .tool.active {
+  outline: 3px solid rgba(176, 0, 3, 0.35);
 }
 
-.label {
+.editor-modal .label {
   font-weight: 700;
   margin-left: 10px;
   font-size: 14px;
 }
-
-
 
 .canvas-area {
   flex: 1;
@@ -73,19 +228,16 @@
   overflow: hidden;
 }
 
-
 .canvas-area canvas {
   max-width: 100%;
   max-height: 100%;
   width: auto;
   height: auto;
   border: 1px solid #ddd;
-  background: white;
+  background: #ffffff;
   display: block;
   object-fit: contain;
 }
-
-
 
 .footer {
   flex-shrink: 0;
@@ -98,8 +250,7 @@
   border-top: 1px solid #ddd;
 }
 
-
-.checkbox {
+.footer .checkbox {
   font-weight: 600;
   font-size: 14px;
   color: #222;
@@ -107,8 +258,6 @@
   gap: 10px;
   align-items: center;
 }
-
-
 
 .caption-box {
   display: flex;
@@ -126,22 +275,15 @@
 }
 
 .caption-box input:focus {
-  border-color: #b30000;
+  border-color: #b00003;
 }
-
-.count {
-  font-size: 12px;
-  opacity: 0.75;
-}
-
-
 
 .footer-btns {
   display: flex;
   gap: 12px;
 }
 
-.btn {
+.footer-btns .btn {
   border: none;
   cursor: pointer;
   border-radius: 10px;
@@ -149,13 +291,98 @@
   font-weight: 800;
 }
 
-.btn.save {
-  background: #b30000;
+.footer-btns .save {
+  background: #b00003;
   color: white;
 }
 
-.btn.close {
-  background: #b30000;
+.footer-btns .close {
+  background: #b00003;
   opacity: 0.85;
   color: white;
+}
+
+/* ================= IMAGE VIEWER (UNCHANGED) ================= */
+
+.image-viewer-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.image-viewer-container {
+  background: white;
+  border-radius: 8px;
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.viewer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #ddd;
+
+  h4 {
+    margin: 0;
+  }
+
+  .close-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+}
+
+.viewer-content {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .viewed-image {
+    max-width: 100%;
+    max-height: 70vh;
+    object-fit: contain;
+  }
+
+  .image-caption {
+    margin-top: 15px;
+    padding: 10px;
+    background: #f5f5f5;
+    border-radius: 4px;
+    text-align: center;
+  }
+}
+
+.image-buttons {
+  display: flex;
+  gap: 5px;
+  margin-top: 0px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.delete-btn {
+  background: #dc3545;
+  color: white;
+
+  &:hover {
+    background: #c82333;
+  }
+}
+
+.empty-slot {
+  height: 138px;
+  background: #f5f5f5;
 }
