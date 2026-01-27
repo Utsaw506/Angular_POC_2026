@@ -27,6 +27,7 @@
               }
             ],
             "styles": [
+              "node_modules/@pqina/pintura/pintura.css",
               "src/styles.css"
             ],
             "scripts": [],
@@ -90,6 +91,7 @@
               }
             ],
             "styles": [
+              "node_modules/@pqina/pintura/pintura.css",
               "src/styles.css"
             ],
             "scripts": []
