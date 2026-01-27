@@ -52,16 +52,15 @@ export class ImageEditorComponent implements AfterViewInit {
   isDrawing = false;
   startX = 0;
   startY = 0;
-
   lastX = 0;
   lastY = 0;
 
   drawnShapes: Shape[] = [];
   currentPath: { x: number; y: number }[] = [];
 
-  /* ---------------- Crop ---------------- */
-
-  cropSelection: { x: number; y: number; width: number; height: number } | null = null;
+  /* Crop */
+  cropSelection:
+    { x: number; y: number; width: number; height: number } | null = null;
 
   isDraggingCrop = false;
   cropDragStartX = 0;
@@ -69,20 +68,17 @@ export class ImageEditorComponent implements AfterViewInit {
   cropStartX = 0;
   cropStartY = 0;
 
-  /* ---------------- Shape Drag ---------------- */
-
+  /* Shape Drag */
   isDraggingShape = false;
   draggedShapeIndex = -1;
   dragShapeStartX = 0;
   dragShapeStartY = 0;
-
   shapeStartX = 0;
   shapeStartY = 0;
   shapeStartX2 = 0;
   shapeStartY2 = 0;
 
-  /* ---------------- Init ---------------- */
-
+  /* Init */
   ngAfterViewInit() {
     this.ctx = this.canvasRef.nativeElement.getContext('2d')!;
     this.loadImage();
@@ -97,8 +93,6 @@ export class ImageEditorComponent implements AfterViewInit {
     };
     this.img.src = this.imageUrl;
   }
-
-  /* ---------------- Tools ---------------- */
 
   setTool(t: Tool) {
     if (this.currentTool === 'crop' && t !== 'crop') {
@@ -115,6 +109,7 @@ export class ImageEditorComponent implements AfterViewInit {
   }
 
   rotate(dir: 'left' | 'right') {
+
     const canvas = this.canvasRef.nativeElement;
 
     const temp = document.createElement('canvas');
@@ -143,17 +138,16 @@ export class ImageEditorComponent implements AfterViewInit {
     this.cropSelection = null;
   }
 
-  /* ---------------- Mouse ---------------- */
+  /* Mouse */
 
   onMouseDown(ev: MouseEvent) {
     const { x, y } = this.getXY(ev);
 
-    /* ---- Crop Drag ---- */
-    if (
-      this.currentTool === 'crop' &&
-      this.cropSelection &&
-      this.isInsideCrop(x, y)
-    ) {
+    // Crop drag
+    if (this.currentTool === 'crop' &&
+        this.cropSelection &&
+        this.isInsideCrop(x, y)) {
+
       this.isDraggingCrop = true;
       this.cropDragStartX = x;
       this.cropDragStartY = y;
@@ -162,9 +156,10 @@ export class ImageEditorComponent implements AfterViewInit {
       return;
     }
 
-    /* ---- Shape Drag ---- */
+    // Shape drag
     const shapeIndex = this.getShapeAtPoint(x, y);
     if (shapeIndex !== -1 && this.currentTool !== 'crop') {
+
       const s = this.drawnShapes[shapeIndex];
 
       this.isDraggingShape = true;
@@ -180,8 +175,7 @@ export class ImageEditorComponent implements AfterViewInit {
       return;
     }
 
-    /* ---- Start Drawing ---- */
-
+    // Draw
     this.isDrawing = true;
     this.startX = x;
     this.startY = y;
@@ -196,14 +190,18 @@ export class ImageEditorComponent implements AfterViewInit {
   }
 
   onMouseMove(ev: MouseEvent) {
-    if (!this.isDrawing && !this.isDraggingShape && !this.isDraggingCrop) return;
+
+    if (!this.isDrawing &&
+        !this.isDraggingShape &&
+        !this.isDraggingCrop) return;
 
     const { x, y } = this.getXY(ev);
     this.lastX = x;
     this.lastY = y;
 
-    /* ---- Drag Crop ---- */
+    // Drag crop
     if (this.isDraggingCrop && this.cropSelection) {
+
       const dx = x - this.cropDragStartX;
       const dy = y - this.cropDragStartY;
 
@@ -216,8 +214,9 @@ export class ImageEditorComponent implements AfterViewInit {
       return;
     }
 
-    /* ---- Drag Shape ---- */
+    // Drag shape
     if (this.isDraggingShape) {
+
       const dx = x - this.dragShapeStartX;
       const dy = y - this.dragShapeStartY;
 
@@ -232,8 +231,7 @@ export class ImageEditorComponent implements AfterViewInit {
       return;
     }
 
-    if (!this.isDrawing) return;
-
+    // Drawing preview
     this.redrawBase();
 
     if (this.currentTool === 'draw') {
@@ -241,11 +239,13 @@ export class ImageEditorComponent implements AfterViewInit {
       this.drawPath(this.currentPath);
     }
 
-    if (this.currentTool === 'rectangle' || this.currentTool === 'dottedRectangle') {
+    if (this.currentTool === 'rectangle' ||
+        this.currentTool === 'dottedRectangle') {
       this.drawRect(this.startX, this.startY, x, y);
     }
 
-    if (this.currentTool === 'circle' || this.currentTool === 'dottedCircle') {
+    if (this.currentTool === 'circle' ||
+        this.currentTool === 'dottedCircle') {
       this.drawCircle(this.startX, this.startY, x, y);
     }
 
@@ -259,6 +259,7 @@ export class ImageEditorComponent implements AfterViewInit {
   }
 
   onMouseUp() {
+
     if (this.isDraggingCrop) {
       this.isDraggingCrop = false;
       return;
@@ -278,7 +279,7 @@ export class ImageEditorComponent implements AfterViewInit {
     this.isDrawing = false;
   }
 
-  /* ---------------- Drawing ---------------- */
+  /* Drawing helpers */
 
   redrawBase() {
     const c = this.canvasRef.nativeElement;
@@ -353,25 +354,47 @@ export class ImageEditorComponent implements AfterViewInit {
       this.ctx.lineWidth = s.width;
 
       if (s.type === 'draw') this.drawPath(s.points);
-      if (s.type.includes('rectangle'))
-        this.drawRect(s.points[0].x, s.points[0].y, s.points[1].x, s.points[1].y);
-      if (s.type.includes('circle'))
-        this.drawCircle(s.points[0].x, s.points[0].y, s.points[1].x, s.points[1].y);
+      if (s.type.includes('rectangle') || s.type.includes('dottedRectangle') )
+        this.drawRect(s.points[0].x, s.points[0].y,
+                      s.points[1].x, s.points[1].y);
+      if (s.type.includes('circle') || s.type.includes('dottedCircle') )
+        this.drawCircle(s.points[0].x, s.points[0].y,
+                        s.points[1].x, s.points[1].y);
     }
   }
+
+  /* HIT TESTING */
 
   getShapeAtPoint(x: number, y: number) {
     for (let i = this.drawnShapes.length - 1; i >= 0; i--) {
       const s = this.drawnShapes[i];
-      if (
-        s.type.includes('rectangle') &&
-        x >= Math.min(s.points[0].x, s.points[1].x) &&
-        x <= Math.max(s.points[0].x, s.points[1].x) &&
-        y >= Math.min(s.points[0].y, s.points[1].y) &&
-        y <= Math.max(s.points[0].y, s.points[1].y)
-      ) return i;
+
+      if (s.type.includes('rectangle') || s.type === ('dottedCircle') ) {
+        if (
+          x >= Math.min(s.points[0].x, s.points[1].x) &&
+          x <= Math.max(s.points[0].x, s.points[1].x) &&
+          y >= Math.min(s.points[0].y, s.points[1].y) &&
+          y <= Math.max(s.points[0].y, s.points[1].y)
+        ) return i;
+      }
+
+      if (s.type.includes('circle') || s.type === ('dottedRectangle')) {
+        if (this.isInsideCircle(x, y, s.points[0], s.points[1]))
+          return i;
+      }
     }
     return -1;
+  }
+
+  isInsideCircle(
+    x: number,
+    y: number,
+    center: { x: number; y: number },
+    edge: { x: number; y: number }
+  ) {
+    const r = Math.hypot(edge.x - center.x, edge.y - center.y);
+    const d = Math.hypot(x - center.x, y - center.y);
+    return d <= r;
   }
 
   isInsideCrop(x: number, y: number) {
