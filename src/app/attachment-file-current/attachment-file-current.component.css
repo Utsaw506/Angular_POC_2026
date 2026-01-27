@@ -1,226 +1,331 @@
+/* =========================================================
+   PAGE
+========================================================= */
+
 .page {
-    background: #f2f2f2;
-    font-family: Inter, system-ui, Arial, sans-serif;
+  background: #f2f2f2;
+  font-family: Inter, system-ui, Arial, sans-serif;
 }
 
+/* =========================================================
+   HEADER BAR
+========================================================= */
+
 .header {
-    background: #b30000;
-    padding: 12px 18px;
-    color: #fff;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  background: #b30000;
+  padding: 12px 18px;
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .head-title {
-    font-size: 16px;
-    font-weight: 700;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
 }
 
 .reset-btn {
-    border: none;
-    cursor: pointer;
-    padding: 6px 12px;
-    border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 8px;
 }
 
+/* =========================================================
+   TABS
+========================================================= */
+
 .tabs {
-    background: #fff;
-    display: flex;
-    gap: 18px;
-    padding: 10px 18px;
-    border-bottom: 2px solid #ddd;
+  background: #fff;
+  display: flex;
+  gap: 18px;
+  padding: 10px 18px;
+  border-bottom: 2px solid #ddd;
 }
 
 .tab {
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
-    padding: 8px 6px;
-    border-bottom: 3px solid transparent;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 6px 4px;
+  border-bottom: 3px solid transparent;
+  font-weight: 500;
 }
 
 .tab.active {
-    border-bottom: 3px solid #b30000;
-    color: #b30000;
-    font-weight: 700;
+  border-bottom: 3px solid #b30000;
+  color: #b30000;
+  font-weight: 600;
 }
+
+/* =========================================================
+   BODY
+========================================================= */
 
 .body {
-    padding: 12px 18px;
+  padding: 12px 18px;
 }
+
+/* =========================================================
+   SECTION TITLE
+========================================================= */
+
+.body h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 8px 0 12px;
+  color: #222;
+}
+
+/* =========================================================
+   SLOTS GRID
+========================================================= */
 
 .slots {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 14px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
 }
+
+/* =========================================================
+   SLOT CARD
+========================================================= */
 
 .slot {
-    background: #fff;
-    border: 1px solid #ddd;
-    height: 160px;
-    display: flex;
-    flex-direction: column;
+  background: #fff;
+  border: 1px solid #d5d5d5;
+  height: 160px;
+  display: flex;
+  flex-direction: column;
+  transition: 0.18s ease;
+  position: relative;
 }
 
+/* Hover Highlight */
+
+.slot:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+  border-color: #b30000;
+}
+
+/* =========================================================
+   EMPTY SLOT (DASHED)
+========================================================= */
+
+.slot:not(:has(img)) {
+  border: 2px dashed #c7c7c7;
+  background: #fafafa;
+}
+
+/* =========================================================
+   SLOT HEADER
+========================================================= */
+
 .slot-head {
-    padding: 6px 8px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  padding: 6px 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .slot-no {
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    display: grid;
-    place-items: center;
-    background: #e5e5e5;
-    font-weight: 700;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #e5e5e5;
+  font-weight: 700;
+  font-size: 12px;
 }
 
 .icons button {
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    font-size: 16px;
-    margin-left: 6px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 15px;
+  margin-left: 6px;
 }
 
+/* =========================================================
+   SLOT BODY
+========================================================= */
+
 .slot-body {
-    flex: 1;
-    display: grid;
-    place-items: center;
-    overflow: hidden;
+  flex: 1;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
 }
 
 .slot-body img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
+
+/* =========================================================
+   PLUS ICON
+========================================================= */
 
 .plus {
-    font-size: 50px;
-    cursor: pointer;
-    opacity: 0.5;
-    user-select: none;
+  font-size: 40px;
+  cursor: pointer;
+  opacity: 0.45;
+  user-select: none;
+  transition: 0.2s ease;
 }
+
+.slot:hover .plus {
+  opacity: 0.8;
+  transform: scale(1.1);
+}
+
+/* =========================================================
+   CAPTION
+========================================================= */
 
 .caption {
-    height: 22px;
-    font-size: 12px;
-    text-align: center;
-    padding: 4px 6px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  height: 22px;
+  font-size: 11px;
+  text-align: center;
+  padding: 4px 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
+
+/* =========================================================
+   CARD
+========================================================= */
 
 .card {
-    background: #fff;
-    border-radius: 12px;
-    padding: 14px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 14px;
 }
 
+/* =========================================================
+   MODAL
+========================================================= */
+
 .modal-backdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.55);
-    display: grid;
-    place-items: center;
-    z-index: 9999;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: grid;
+  place-items: center;
+  z-index: 9999;
 }
 
 .modal {
-    width: 800px;
-    background: #fff;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+  width: 800px;
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
 }
 
 .modal-header {
-    background: #b30000;
-    color: #fff;
-    padding: 12px 14px;
-    font-weight: 700;
+  background: #b30000;
+  color: #fff;
+  padding: 12px 14px;
+  font-weight: 700;
 }
 
+/* =========================================================
+   DROP ZONE
+========================================================= */
+
 .drop-zone {
-    border: 2px dashed #ccc;
-    margin: 16px;
-    padding: 45px 20px;
-    text-align: center;
-    position: relative;
-    border-radius: 10px;
+  border: 2px dashed #ccc;
+  margin: 16px;
+  padding: 45px 20px;
+  text-align: center;
+  position: relative;
+  border-radius: 10px;
+  transition: 0.2s ease;
+}
+
+.drop-zone:hover {
+  border-color: #b30000;
+  background: rgba(179,0,0,0.05);
 }
 
 .drop-zone input {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    cursor: pointer;
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
 }
 
 .drop-text {
-    font-size: 18px;
-    color: #444;
+  font-size: 16px;
+  color: #444;
 }
 
-.modal-footer {
-    background: #eee;
-    padding: 12px 14px;
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-}
-
-.btn {
-    border: none;
-    padding: 10px 20px;
-    border-radius: 10px;
-    cursor: pointer;
-    font-weight: 700;
-}
-
-.primary {
-    background: #b30000;
-    color: #fff;
-}
+/* =========================================================
+   SELECTED FILE
+========================================================= */
 
 .selected-file {
-    margin: 0 16px 16px;
-    background: #d9d9d9;
-    border-radius: 6px;
-    padding: 12px 14px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  margin: 0 16px 16px;
+  background: #d9d9d9;
+  border-radius: 6px;
+  padding: 10px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .file-name {
-    font-size: 14px;
-    color: #333;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    max-width: 90%;
+  font-size: 13px;
+  color: #333;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-width: 90%;
 }
 
 .remove-file {
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    font-size: 18px;
-    color: #c00000;
-    font-weight: 900;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 18px;
+  color: #c00000;
+  font-weight: 900;
+}
+
+/* =========================================================
+   MODAL FOOTER
+========================================================= */
+
+.modal-footer {
+  background: #eee;
+  padding: 12px 14px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.btn {
+  border: none;
+  padding: 8px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.primary {
+  background: #b30000;
+  color: #fff;
 }
 
 .btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+  opacity: 0.6;
+  cursor: not-allowed;
 }

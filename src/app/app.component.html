@@ -14,22 +14,23 @@
     <nav class="menu">
 
       <button class="menu-item" [class.active]="selectedPage === 'current'" (click)="openPage('current')"
-        [attr.title]="!sidebarOpen ? 'Attachment File Current' : null">
+        [attr.title]="!sidebarOpen ? 'Image Editor Current' : null">
 
         <span class="icon">🔗</span>
 
         <span class="text" *ngIf="sidebarOpen">
-          Attachment File Current
+          Image Editor Current
         </span>
       </button>
 
       <button class="menu-item" [class.active]="selectedPage === 'enhancement'" (click)="openPage('enhancement')"
-        [attr.title]="!sidebarOpen ? 'Attachment File Enhancement' : null">
+        [attr.title]="!sidebarOpen ? 'Image Editor Enhancement' : null">
 
         <span class="icon">🧷</span>
 
         <span class="text" *ngIf="sidebarOpen">
-          Attachment File Enhancement
+          <!-- Attachment File Enhancement -->
+         Image Editor Enhancement
         </span>
       </button>
 

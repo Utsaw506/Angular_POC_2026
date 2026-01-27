@@ -23,9 +23,8 @@
 
       <button class="action" (click)="reset()">Reset</button>
 
-      <button class="tool" (click)="setTool('crop')" [class.active]="currentTool==='crop'">Crop</button>
+      <button class="action" (click)="setTool('crop')" [class.active]="currentTool==='crop'">Crop</button>
 
-      <!-- ✅ FIXED -->
       <button class="action" *ngIf="currentTool==='crop' && cropSelection !== null" (click)="applyCrop()">
         Apply Crop
       </button>

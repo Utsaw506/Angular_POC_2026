@@ -28,7 +28,7 @@ export class AppComponent {
 
   get pageTitle(): string {
     return this.selectedPage === 'current'
-      ? 'Attachment File Current'
-      : 'Attachment File Enhancement';
+      ? 'Image Editor Current'
+      : 'Image Editor Enhancement';
   }
 }

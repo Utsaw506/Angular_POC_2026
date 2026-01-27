@@ -1,7 +1,15 @@
+/* =========================================================
+   PAGE
+========================================================= */
+
 .page {
   background: #f2f2f2;
   font-family: Inter, system-ui, Arial, sans-serif;
 }
+
+/* =========================================================
+   HEADER BAR
+========================================================= */
 
 .header {
   background: #b30000;
@@ -13,16 +21,21 @@
 }
 
 .head-title {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
+  letter-spacing: 0.3px;
 }
 
 .reset-btn {
   border: none;
   cursor: pointer;
   padding: 6px 12px;
-  border-radius: 10px;
+  border-radius: 8px;
 }
+
+/* =========================================================
+   TABS
+========================================================= */
 
 .tabs {
   background: #fff;
@@ -36,20 +49,40 @@
   background: transparent;
   border: none;
   cursor: pointer;
-  font-size: 16px;
-  padding: 8px 6px;
+  font-size: 14px;
+  padding: 6px 4px;
   border-bottom: 3px solid transparent;
+  font-weight: 500;
 }
 
 .tab.active {
   border-bottom: 3px solid #b30000;
   color: #b30000;
-  font-weight: 700;
+  font-weight: 600;
 }
+
+/* =========================================================
+   BODY
+========================================================= */
 
 .body {
   padding: 12px 18px;
 }
+
+/* =========================================================
+   SECTION TITLE
+========================================================= */
+
+.body h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 8px 0 12px;
+  color: #222;
+}
+
+/* =========================================================
+   SLOTS GRID
+========================================================= */
 
 .slots {
   display: grid;
@@ -57,13 +90,40 @@
   gap: 14px;
 }
 
+/* =========================================================
+   SLOT CARD
+========================================================= */
+
 .slot {
   background: #fff;
-  border: 1px solid #ddd;
+  border: 1px solid #d5d5d5;
   height: 160px;
   display: flex;
   flex-direction: column;
+  transition: 0.18s ease;
+  position: relative;
 }
+
+/* Hover Highlight */
+
+.slot:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+  border-color: #b30000;
+}
+
+/* =========================================================
+   EMPTY SLOT (DASHED)
+========================================================= */
+
+.slot:not(:has(img)) {
+  border: 2px dashed #c7c7c7;
+  background: #fafafa;
+}
+
+/* =========================================================
+   SLOT HEADER
+========================================================= */
 
 .slot-head {
   padding: 6px 8px;
@@ -73,22 +133,27 @@
 }
 
 .slot-no {
-  width: 26px;
-  height: 26px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   display: grid;
   place-items: center;
   background: #e5e5e5;
   font-weight: 700;
+  font-size: 12px;
 }
 
 .icons button {
   border: none;
   background: transparent;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 15px;
   margin-left: 6px;
 }
+
+/* =========================================================
+   SLOT BODY
+========================================================= */
 
 .slot-body {
   flex: 1;
@@ -103,16 +168,30 @@
   object-fit: cover;
 }
 
+/* =========================================================
+   PLUS ICON
+========================================================= */
+
 .plus {
-  font-size: 50px;
+  font-size: 40px;
   cursor: pointer;
-  opacity: 0.5;
+  opacity: 0.45;
   user-select: none;
+  transition: 0.2s ease;
 }
+
+.slot:hover .plus {
+  opacity: 0.8;
+  transform: scale(1.1);
+}
+
+/* =========================================================
+   CAPTION
+========================================================= */
 
 .caption {
   height: 22px;
-  font-size: 12px;
+  font-size: 11px;
   text-align: center;
   padding: 4px 6px;
   overflow: hidden;
@@ -120,11 +199,19 @@
   white-space: nowrap;
 }
 
+/* =========================================================
+   CARD
+========================================================= */
+
 .card {
   background: #fff;
   border-radius: 12px;
   padding: 14px;
 }
+
+/* =========================================================
+   MODAL
+========================================================= */
 
 .modal-backdrop {
   position: fixed;
@@ -150,6 +237,10 @@
   font-weight: 700;
 }
 
+/* =========================================================
+   DROP ZONE
+========================================================= */
+
 .drop-zone {
   border: 2px dashed #ccc;
   margin: 16px;
@@ -157,6 +248,12 @@
   text-align: center;
   position: relative;
   border-radius: 10px;
+  transition: 0.2s ease;
+}
+
+.drop-zone:hover {
+  border-color: #b30000;
+  background: rgba(179,0,0,0.05);
 }
 
 .drop-zone input {
@@ -167,43 +264,26 @@
 }
 
 .drop-text {
-  font-size: 18px;
+  font-size: 16px;
   color: #444;
 }
 
-.modal-footer {
-  background: #eee;
-  padding: 12px 14px;
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-}
-
-.btn {
-  border: none;
-  padding: 10px 20px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-weight: 700;
-}
-
-.primary {
-  background: #b30000;
-  color: #fff;
-}
+/* =========================================================
+   SELECTED FILE
+========================================================= */
 
 .selected-file {
   margin: 0 16px 16px;
   background: #d9d9d9;
   border-radius: 6px;
-  padding: 12px 14px;
+  padding: 10px 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
 .file-name {
-  font-size: 14px;
+  font-size: 13px;
   color: #333;
   overflow: hidden;
   white-space: nowrap;
@@ -218,6 +298,31 @@
   font-size: 18px;
   color: #c00000;
   font-weight: 900;
+}
+
+/* =========================================================
+   MODAL FOOTER
+========================================================= */
+
+.modal-footer {
+  background: #eee;
+  padding: 12px 14px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.btn {
+  border: none;
+  padding: 8px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.primary {
+  background: #b30000;
+  color: #fff;
 }
 
 .btn:disabled {
