@@ -33,10 +33,10 @@
       <button class="action" (click)="rotate('right')">⟳</button>
 
     </div>
-
+<!-- (mousemove)="onMouseMove($event); draw($event)" -->
     <!-- Canvas -->
     <div class="canvas-area">
-      <canvas #canvas (mousedown)="onMouseDown($event)" (mousemove)="onMouseMove($event)" (mouseup)="onMouseUp()"
+      <canvas #canvas (mousedown)="onMouseDown($event)"  (mousemove)="onMouseMoveold($event); draw($event)" (mouseup)="onMouseUp()"
         (mouseleave)="onMouseUp()">
       </canvas>
     </div>
