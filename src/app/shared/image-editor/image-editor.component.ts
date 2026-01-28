@@ -9,7 +9,7 @@ import {
   AfterViewInit
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-
+import { MatIconModule } from '@angular/material/icon';
 type Tool =
   | 'draw'
   | 'rectangle'
@@ -28,7 +28,7 @@ interface Shape {
 @Component({
   selector: 'app-image-editor',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule , MatIconModule],
   templateUrl: './image-editor.component.html',
   styleUrl: './image-editor.component.css'
 })

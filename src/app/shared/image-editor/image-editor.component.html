@@ -3,7 +3,10 @@
 
     <div class="toolbar">
 
-      <button class="tool" (click)="setTool('draw')" [class.active]="currentTool==='draw'">✏</button>
+      <button class="tool" (click)="setTool('draw')" [class.active]="currentTool==='draw'">
+        <mat-icon fontSet="material-symbols-outlined">edit</mat-icon>
+
+      </button>
 
       <button class="tool" (click)="setTool('rectangle')" [class.active]="currentTool==='rectangle'">▢</button>
 
