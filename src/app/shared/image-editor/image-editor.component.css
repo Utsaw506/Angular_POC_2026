@@ -237,6 +237,48 @@
   background: #ffffff;
   display: block;
   object-fit: contain;
+  cursor: crosshair;
+}
+
+/* Cursor styles for crop tool */
+.canvas-area canvas.crop-tool {
+  cursor: crosshair;
+}
+
+.canvas-area canvas.crop-tool.move {
+  cursor: move;
+}
+
+.canvas-area canvas.crop-tool.nw-resize {
+  cursor: nw-resize;
+}
+
+.canvas-area canvas.crop-tool.ne-resize {
+  cursor: ne-resize;
+}
+
+.canvas-area canvas.crop-tool.sw-resize {
+  cursor: sw-resize;
+}
+
+.canvas-area canvas.crop-tool.se-resize {
+  cursor: se-resize;
+}
+
+.canvas-area canvas.crop-tool.n-resize {
+  cursor: n-resize;
+}
+
+.canvas-area canvas.crop-tool.s-resize {
+  cursor: s-resize;
+}
+
+.canvas-area canvas.crop-tool.e-resize {
+  cursor: e-resize;
+}
+
+.canvas-area canvas.crop-tool.w-resize {
+  cursor: w-resize;
 }
 
 .footer {
