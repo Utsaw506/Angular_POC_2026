@@ -114,11 +114,19 @@
 </div>
 
 <!-- Editor Modal -->
-<app-image-editor
+<!-- <app-image-editor
   *ngIf="editorOpen"
   [imageUrl]="editorImageUrl"
   [caption]="editorCaption"
   [enlarged]="editorEnlarged"
   (closed)="editorOpen=false"
   (saved)="onEditorSaved($event)">
-</app-image-editor>
+</app-image-editor> -->
+<app-image-editor-old>
+  *ngIf="editorOpenOld"
+  [imageUrl]="editorImageUrlOld"
+  [caption]="editorCaptionOld"
+  [enlarged]="editorEnlargedOld"
+  (closed)="editorOpenOld=false"
+  (saved)="onEditorSavedOld($event)">
+</app-image-editor-old>

@@ -2,6 +2,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Component, Inject, PLATFORM_ID } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ImageEditorComponent } from '../shared/image-editor/image-editor.component';
+import { ImageEditorOldComponent } from "../shared/image-editor-old/image-editor-old.component";
 
 type UserType = 'auditor' | 'auditee';
 
@@ -22,7 +23,7 @@ const STORAGE_KEY = 'ANG18_ATTACHMENT_POC_ENHANCEMENT';
 @Component({
   selector: 'app-attachment-file-enhancement',
   standalone: true,
-  imports: [CommonModule, FormsModule, ImageEditorComponent],
+  imports: [CommonModule, FormsModule, ImageEditorOldComponent],
   templateUrl: './attachment-file-enhancement.component.html',
   styleUrl: './attachment-file-enhancement.component.css'
 })
@@ -37,12 +38,12 @@ export class AttachmentFileEnhancementComponent {
   uploadSlotNo = 1;
   selectedFile: File | null = null;
 
-  editorOpen = false;
+  editorOpenOld = false;
   editorType: UserType = 'auditor';
   editorSlotNo = 1;
-  editorImageUrl = '';
-  editorCaption = '';
-  editorEnlarged = false;
+  editorImageUrlOld = '';
+  editorCaptionOld = '';
+  editorEnlargedOld = false;
 
   constructor(@Inject(PLATFORM_ID) private platformId: Object) {
     if (isPlatformBrowser(this.platformId)) {
@@ -157,19 +158,19 @@ export class AttachmentFileEnhancementComponent {
     this.editorType = type;
     this.editorSlotNo = slotNo;
 
-    this.editorImageUrl = slot.url;
-    this.editorCaption = slot.caption;
-    this.editorEnlarged = slot.enlarged;
+    this.editorImageUrlOld = slot.url;
+    this.editorCaptionOld = slot.caption;
+    this.editorEnlargedOld = slot.enlarged;
 
-    this.editorOpen = true;
+    this.editorOpenOld = true;
   }
 
-  onEditorSaved(updated: { url: string; caption: string; enlarged: boolean }) {
+  onEditorSavedOld(updated: { url: string; caption: string; enlarged: boolean }) {
     this.setSlot(this.editorType, this.editorSlotNo, {
       url: updated.url,
       caption: updated.caption,
       enlarged: updated.enlarged
     });
-    this.editorOpen = false;
+    this.editorOpenOld = false;
   }
 }

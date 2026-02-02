@@ -1,1 +1,106 @@
-<p>image-editor-old works!</p>
+<div class="backdrop">
+  <div class="editor-modal">
+
+    <div class="toolbar">
+
+      <button class="tool" (click)="setTool('draw')" [class.active]="currentTool==='draw'">
+        <mat-icon fontSet="material-symbols-outlined">edit</mat-icon>
+      </button>
+
+      <button class="tool" (click)="setTool('rectangle')" [class.active]="currentTool==='rectangle'">▢</button>
+
+      <button class="tool" (click)="setTool('circle')" [class.active]="currentTool==='circle'">◯</button>
+
+      <button class="tool" (click)="setTool('dottedRectangle')"
+        [class.active]="currentTool==='dottedRectangle'">▭</button>
+
+      <button class="tool" (click)="setTool('dottedCircle')" [class.active]="currentTool==='dottedCircle'">⬭</button>
+
+      <button class="tool" (click)="setTool('text')" [class.active]="currentTool==='text'" title="Text Box">
+        <mat-icon fontSet="material-symbols-outlined">text_fields</mat-icon>
+      </button>
+
+      <span class="label">Color:</span>
+      <input type="color" [(ngModel)]="drawColor">
+
+      <span class="label">Width:</span>
+      <input type="range" min="1" max="20" [(ngModel)]="lineWidth">
+
+      <!-- Text-specific controls -->
+      <ng-container *ngIf="currentTool === 'text'">
+        <span class="label">Font Size:</span>
+        <input type="range" min="10" max="72" [(ngModel)]="fontSize">
+        <span class="label">{{fontSize}}px</span>
+
+        <span class="label">Font:</span>
+        <select [(ngModel)]="fontFamily" class="font-select">
+          <option value="Arial">Arial</option>
+          <option value="Times New Roman">Times New Roman</option>
+          <option value="Courier New">Courier New</option>
+          <option value="Georgia">Georgia</option>
+          <option value="Verdana">Verdana</option>
+          <option value="Comic Sans MS">Comic Sans MS</option>
+          <option value="Impact">Impact</option>
+        </select>
+      </ng-container>
+
+      <!--Brightness -->
+      <span class="label">Brightness:</span>
+      <input type="range" min="50" max="200" [(ngModel)]="brightness" (input)="redrawBase(); redrawShapes()">
+
+      <!-- Actions -->
+      <button class="action" (click)="reset()">Reset</button>
+
+      <button class="action" (click)="setTool('crop')" [class.active]="currentTool==='crop'">
+        Crop
+      </button>
+
+      <button class="action" *ngIf="currentTool==='crop' && cropSelection !== null" (click)="applyCrop()">
+        Apply Crop
+      </button>
+
+      <button class="action" (click)="rotate('left')">⟲</button>
+      <button class="action" (click)="rotate('right')">⟳</button>
+
+    </div>
+
+
+    <div class="canvas-area">
+      <!-- <canvas #canvas (mousedown)="onMouseDown($event)" (mousemove)="onMouseMove($event)" (mouseup)="onMouseUp()"
+        (mouseleave)="onMouseUp()">
+      </canvas> -->
+      <canvas #canvas (mousedown)="onMouseDown($event)" (mousemove)="onMouseMove($event)" (mouseup)="onMouseUp()"
+        (mouseleave)="onMouseUp()" (dblclick)="onDoubleClick($event)">
+      </canvas>
+
+      <!-- Text Input Overlay (PowerPoint Style) -->
+      <textarea #textInput *ngIf="isEditingText" [(ngModel)]="textInputValue" (ngModelChange)="onTextInputChange()"
+        (blur)="onTextInputBlur()" (keydown)="onTextInputKeyDown($event)" [style.left.px]="textInputPosition.x"
+        [style.top.px]="textInputPosition.y" [style.width.px]="textInputPosition.width"
+        [style.height.px]="textInputPosition.height" [style.font-size.px]="fontSize" [style.font-family]="fontFamily"
+        [style.color]="drawColor" class="text-input-overlay">
+      </textarea>
+    </div>
+
+    <div class="footer">
+
+      <label class="checkbox">
+        <input type="checkbox" [(ngModel)]="enlarged">
+        Enable enlarged view in final report.
+      </label>
+
+      <div class="caption-box">
+        <label>Caption:</label>
+        <input maxlength="30" [(ngModel)]="caption">
+        <span>{{caption.length}}/30</span>
+      </div>
+
+      <div class="footer-btns">
+        <button class="btn save" (click)="save()">Save</button>
+        <button class="btn close" (click)="closed.emit()">Close</button>
+      </div>
+
+    </div>
+
+  </div>
+</div>
