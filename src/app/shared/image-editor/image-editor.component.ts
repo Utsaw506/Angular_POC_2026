@@ -17,13 +17,16 @@ type Tool =
   | 'circle'
   | 'dottedRectangle'
   | 'dottedCircle'
-  | 'crop';
+  | 'crop'
+  | 'select';
 
 interface Shape {
   type: Tool;
   points: { x: number; y: number }[];
   color: string;
   width: number;
+  isSelected?: boolean;
+  originalPoints?: { x: number; y: number }[];
 }
 
 type ResizeHandle = 'nw' | 'ne' | 'sw' | 'se' | 'n' | 's' | 'e' | 'w' | null;
@@ -48,7 +51,6 @@ export class ImageEditorComponent implements AfterViewInit {
   ctx!: CanvasRenderingContext2D;
   img = new Image();
 
-  // Store original image URL for reset functionality
   originalImageUrl = '';
 
   currentTool: Tool = 'draw';
@@ -73,12 +75,15 @@ export class ImageEditorComponent implements AfterViewInit {
   cropStartX = 0;
   cropStartY = 0;
 
-  // Resize-related properties
   isResizingCrop = false;
   resizeHandle: ResizeHandle = null;
   resizeStartX = 0;
   resizeStartY = 0;
   resizeOriginalCrop: { x: number; y: number; width: number; height: number } | null = null;
+
+  selectedShape: Shape | null = null;
+  isResizingShape = false;
+  shapeResizeHandle: ResizeHandle = null;
 
   isDraggingShape = false;
   draggedShapeIndex = -1;
@@ -92,7 +97,6 @@ export class ImageEditorComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     this.ctx = this.canvasRef.nativeElement.getContext('2d')!;
-    // Store the original image URL when component initializes
     this.originalImageUrl = this.imageUrl;
     this.loadImage();
   }
@@ -110,21 +114,27 @@ export class ImageEditorComponent implements AfterViewInit {
   setTool(t: Tool) {
     if (this.currentTool === 'crop' && t !== 'crop') {
       this.cropSelection = null;
+      this.redrawBase();
+      this.redrawShapes();
     }
+
+    if (t !== 'select') {
+      this.selectedShape = null;
+      this.drawnShapes.forEach(s => s.isSelected = false);
+    }
+
     this.currentTool = t;
   }
 
   reset() {
-    // Reset to original image
     this.imageUrl = this.originalImageUrl;
     this.drawnShapes = [];
     this.cropSelection = null;
+    this.selectedShape = null;
     this.currentTool = 'draw';
     this.brightness = 100;
     this.drawColor = '#ff0000';
     this.lineWidth = 3;
-    
-    // Reload the original image
     this.loadImage();
   }
 
@@ -153,20 +163,19 @@ export class ImageEditorComponent implements AfterViewInit {
     this.ctx.drawImage(rotated, 0, 0);
     this.ctx.filter = 'none';
 
-    // Update current image URL (not original)
     this.imageUrl = canvas.toDataURL();
     this.img.src = this.imageUrl;
 
     this.drawnShapes = [];
     this.cropSelection = null;
+    this.selectedShape = null;
   }
 
   onMouseDown(ev: MouseEvent) {
     const { x, y } = this.getXY(ev);
 
-    // Check if we're resizing the crop
     if (this.currentTool === 'crop' && this.cropSelection) {
-      const handle = this.getResizeHandle(x, y);
+      const handle = this.getResizeHandle(x, y, this.cropSelection);
       if (handle) {
         this.isResizingCrop = true;
         this.resizeHandle = handle;
@@ -176,7 +185,6 @@ export class ImageEditorComponent implements AfterViewInit {
         return;
       }
 
-      // Check if we're dragging the crop
       if (this.isInsideCrop(x, y)) {
         this.isDraggingCrop = true;
         this.cropDragStartX = x;
@@ -187,8 +195,55 @@ export class ImageEditorComponent implements AfterViewInit {
       }
     }
 
+    if (this.currentTool === 'select') {
+      if (this.selectedShape) {
+        const handle = this.getShapeResizeHandle(x, y, this.selectedShape);
+        if (handle) {
+          this.isResizingShape = true;
+          this.shapeResizeHandle = handle;
+          this.resizeStartX = x;
+          this.resizeStartY = y;
+          return;
+        }
+
+        const shapeIndex = this.getShapeAtPoint(x, y);
+        if (shapeIndex !== -1 && this.drawnShapes[shapeIndex] === this.selectedShape) {
+          this.isDraggingShape = true;
+          this.draggedShapeIndex = shapeIndex;
+          this.shapeStartX = this.selectedShape.points[0].x;
+          this.shapeStartY = this.selectedShape.points[0].y;
+          this.shapeStartX2 = this.selectedShape.points[1].x;
+          this.shapeStartY2 = this.selectedShape.points[1].y;
+          this.dragShapeStartX = x;
+          this.dragShapeStartY = y;
+          return;
+        }
+      }
+
+      const shapeIndex = this.getShapeAtPoint(x, y);
+      if (shapeIndex !== -1) {
+        this.selectShape(this.drawnShapes[shapeIndex]);
+        this.isDraggingShape = true;
+        this.draggedShapeIndex = shapeIndex;
+        this.shapeStartX = this.selectedShape!.points[0].x;
+        this.shapeStartY = this.selectedShape!.points[0].y;
+        this.shapeStartX2 = this.selectedShape!.points[1].x;
+        this.shapeStartY2 = this.selectedShape!.points[1].y;
+        this.dragShapeStartX = x;
+        this.dragShapeStartY = y;
+        return;
+      } else {
+        this.selectedShape = null;
+        this.drawnShapes.forEach(s => s.isSelected = false);
+        this.redrawBase();
+        this.redrawShapes();
+      }
+      return;
+    }
+
     const shapeIndex = this.getShapeAtPoint(x, y);
-    if (shapeIndex !== -1 && this.currentTool !== 'crop') {
+    const blockedTools: Tool[] = ['crop', 'select'];
+    if (shapeIndex !== -1 && !blockedTools.includes(this.currentTool)) {
       const s = this.drawnShapes[shapeIndex];
 
       this.isDraggingShape = true;
@@ -207,6 +262,8 @@ export class ImageEditorComponent implements AfterViewInit {
     this.isDrawing = true;
     this.startX = x;
     this.startY = y;
+    this.lastX = x;
+    this.lastY = y;
 
     if (this.currentTool === 'draw') {
       this.currentPath = [{ x, y }];
@@ -220,17 +277,19 @@ export class ImageEditorComponent implements AfterViewInit {
   onMouseMove(ev: MouseEvent) {
     const { x, y } = this.getXY(ev);
 
-    // Update cursor based on position
     if (this.currentTool === 'crop' && this.cropSelection && !this.isDrawing && !this.isResizingCrop && !this.isDraggingCrop) {
       this.updateCursor(x, y);
     }
 
-    if (!this.isDrawing && !this.isDraggingShape && !this.isDraggingCrop && !this.isResizingCrop) return;
+    if (this.currentTool === 'select' && this.selectedShape && !this.isDraggingShape && !this.isResizingShape) {
+      this.updateShapeCursor(x, y);
+    }
+
+    if (!this.isDrawing && !this.isDraggingShape && !this.isDraggingCrop && !this.isResizingCrop && !this.isResizingShape) return;
 
     this.lastX = x;
     this.lastY = y;
 
-    // Handle crop resizing
     if (this.isResizingCrop && this.cropSelection && this.resizeOriginalCrop) {
       const dx = x - this.resizeStartX;
       const dy = y - this.resizeStartY;
@@ -275,7 +334,6 @@ export class ImageEditorComponent implements AfterViewInit {
           break;
       }
 
-      // Ensure minimum size
       if (crop.width < 20) {
         if (this.resizeHandle?.includes('w')) {
           crop.x = original.x + original.width - 20;
@@ -291,6 +349,69 @@ export class ImageEditorComponent implements AfterViewInit {
 
       this.redrawBase();
       this.drawCropOverlay();
+      this.redrawShapes();
+      return;
+    }
+
+    if (this.isResizingShape && this.selectedShape) {
+      const dx = x - this.resizeStartX;
+      const dy = y - this.resizeStartY;
+
+      const shape = this.selectedShape;
+      const p0 = shape.points[0];
+      const p1 = shape.points[1];
+
+      if (!shape.originalPoints) {
+        shape.originalPoints = [{ ...p0 }, { ...p1 }];
+      }
+
+      switch (this.shapeResizeHandle) {
+        case 'nw':
+          p0.x += dx;
+          p0.y += dy;
+          break;
+        case 'ne':
+          p0.y += dy;
+          p1.x += dx;
+          break;
+        case 'sw':
+          p0.x += dx;
+          p1.y += dy;
+          break;
+        case 'se':
+          p1.x += dx;
+          p1.y += dy;
+          break;
+        case 'n':
+          p0.y += dy;
+          break;
+        case 's':
+          p1.y += dy;
+          break;
+        case 'e':
+          p1.x += dx;
+          break;
+        case 'w':
+          p0.x += dx;
+          break;
+      }
+
+      if (shape.type === 'circle' || shape.type === 'dottedCircle') {
+        const width = Math.abs(p1.x - p0.x);
+        const height = Math.abs(p1.y - p0.y);
+        const size = Math.max(width, height);
+
+        const signX = p1.x > p0.x ? 1 : -1;
+        const signY = p1.y > p0.y ? 1 : -1;
+
+        p1.x = p0.x + (size * signX);
+        p1.y = p0.y + (size * signY);
+      }
+
+      this.resizeStartX = x;
+      this.resizeStartY = y;
+
+      this.redrawBase();
       this.redrawShapes();
       return;
     }
@@ -330,15 +451,45 @@ export class ImageEditorComponent implements AfterViewInit {
       this.drawPath(this.currentPath);
     }
 
-    if (this.currentTool === 'rectangle' || this.currentTool === 'dottedRectangle') {
+    // if (this.currentTool === 'rectangle') {
+    //   this.drawRect(this.startX, this.startY, x, y);
+    // }
+    // if (this.currentTool === 'dottedRectangle') {
+    //   this.ctx.setLineDash([5, 5]);
+    //   this.drawRect(this.startX, this.startY, x, y);
+    //   this.ctx.setLineDash([]);
+    // }
+    // if (this.currentTool === 'circle') {
+    //   this.drawCircle(this.startX, this.startY, x, y);
+    // }
+    // if (this.currentTool === 'circle' || this.currentTool === 'dottedCircle') {
+    //   this.ctx.setLineDash([5, 5]);
+    //   this.drawCircle(this.startX, this.startY, x, y);
+    //   this.ctx.setLineDash([]);
+    // }
+
+    // if (this.currentTool === 'crop' && this.cropSelection) {
+    //   this.cropSelection.width = x - this.startX;
+    //   this.cropSelection.height = y - this.startY;
+    //   this.drawCropOverlay();
+    // }
+    if (this.currentTool === 'rectangle') {
       this.drawRect(this.startX, this.startY, x, y);
     }
-
-    if (this.currentTool === 'circle' || this.currentTool === 'dottedCircle') {
+    else if (this.currentTool === 'dottedRectangle') {
+      this.ctx.setLineDash([5, 5]);
+      this.drawRect(this.startX, this.startY, x, y);
+      this.ctx.setLineDash([]);
+    }
+    else if (this.currentTool === 'circle') {
       this.drawCircle(this.startX, this.startY, x, y);
     }
-
-    if (this.currentTool === 'crop' && this.cropSelection) {
+    else if (this.currentTool === 'dottedCircle') {
+      this.ctx.setLineDash([5, 5]);
+      this.drawCircle(this.startX, this.startY, x, y);
+      this.ctx.setLineDash([]);
+    }
+    else if (this.currentTool === 'crop' && this.cropSelection) {
       this.cropSelection.width = x - this.startX;
       this.cropSelection.height = y - this.startY;
       this.drawCropOverlay();
@@ -355,6 +506,12 @@ export class ImageEditorComponent implements AfterViewInit {
       return;
     }
 
+    if (this.isResizingShape) {
+      this.isResizingShape = false;
+      this.shapeResizeHandle = null;
+      return;
+    }
+
     if (this.isDraggingCrop) {
       this.isDraggingCrop = false;
       return;
@@ -367,12 +524,13 @@ export class ImageEditorComponent implements AfterViewInit {
 
     if (!this.isDrawing) return;
 
-    if (this.currentTool !== 'crop') {
+    if (this.currentTool !== 'crop' && this.currentTool !== 'select') {
       this.saveShape();
     }
 
     this.isDrawing = false;
   }
+
 
   redrawBase() {
     const c = this.canvasRef.nativeElement;
@@ -421,14 +579,11 @@ export class ImageEditorComponent implements AfterViewInit {
     this.ctx.fillRect(0, y, x, height);
     this.ctx.fillRect(x + width, y, c.width, height);
 
-    // Draw resize handles
-    this.drawResizeHandles();
+    this.drawResizeHandles(this.cropSelection);
   }
 
-  drawResizeHandles() {
-    if (!this.cropSelection) return;
-
-    const { x, y, width, height } = this.cropSelection;
+  drawResizeHandles(area: { x: number; y: number; width: number; height: number }) {
+    const { x, y, width, height } = area;
     const handleSize = 10;
 
     this.ctx.fillStyle = '#1e90ff';
@@ -436,36 +591,37 @@ export class ImageEditorComponent implements AfterViewInit {
     this.ctx.lineWidth = 2;
 
     const handles = [
-      { x: x, y: y }, // nw
-      { x: x + width, y: y }, // ne
-      { x: x, y: y + height }, // sw
-      { x: x + width, y: y + height }, // se
-      { x: x + width / 2, y: y }, // n
-      { x: x + width / 2, y: y + height }, // s
-      { x: x + width, y: y + height / 2 }, // e
-      { x: x, y: y + height / 2 } // w
+      { x: x, y: y },
+      { x: x + width, y: y },
+      { x: x, y: y + height },
+      { x: x + width, y: y + height },
+      { x: x + width / 2, y: y },
+      { x: x + width / 2, y: y + height },
+      { x: x + width, y: y + height / 2 },
+      { x: x, y: y + height / 2 }
     ];
 
     handles.forEach(handle => {
-      this.ctx.fillRect(
-        handle.x - handleSize / 2,
-        handle.y - handleSize / 2,
-        handleSize,
-        handleSize
-      );
-      this.ctx.strokeRect(
-        handle.x - handleSize / 2,
-        handle.y - handleSize / 2,
-        handleSize,
-        handleSize
-      );
+      this.ctx.fillRect(handle.x - handleSize / 2, handle.y - handleSize / 2, handleSize, handleSize);
+      this.ctx.strokeRect(handle.x - handleSize / 2, handle.y - handleSize / 2, handleSize, handleSize);
     });
   }
 
-  getResizeHandle(x: number, y: number): ResizeHandle {
-    if (!this.cropSelection) return null;
+  drawShapeResizeHandles(shape: Shape) {
+    const p0 = shape.points[0];
+    const p1 = shape.points[1];
 
-    const { x: cx, y: cy, width, height } = this.cropSelection;
+    const minX = Math.min(p0.x, p1.x);
+    const minY = Math.min(p0.y, p1.y);
+    const maxX = Math.max(p0.x, p1.x);
+    const maxY = Math.max(p0.y, p1.y);
+
+    this.drawResizeHandles({ x: minX, y: minY, width: maxX - minX, height: maxY - minY });
+  }
+
+
+  getResizeHandle(x: number, y: number, area: { x: number; y: number; width: number; height: number }): ResizeHandle {
+    const { x: cx, y: cy, width, height } = area;
     const tolerance = 10;
 
     const handles: { type: ResizeHandle; x: number; y: number }[] = [
@@ -484,24 +640,37 @@ export class ImageEditorComponent implements AfterViewInit {
         return handle.type;
       }
     }
-
     return null;
+  }
+
+  getShapeResizeHandle(x: number, y: number, shape: Shape): ResizeHandle {
+    if (shape.type === 'draw') return null;
+
+    const p0 = shape.points[0];
+    const p1 = shape.points[1];
+
+    const minX = Math.min(p0.x, p1.x);
+    const minY = Math.min(p0.y, p1.y);
+    const maxX = Math.max(p0.x, p1.x);
+    const maxY = Math.max(p0.y, p1.y);
+
+    return this.getResizeHandle(x, y, { x: minX, y: minY, width: maxX - minX, height: maxY - minY });
   }
 
   updateCursor(x: number, y: number) {
     const canvas = this.canvasRef.nativeElement;
-    const handle = this.getResizeHandle(x, y);
+
+    if (!this.cropSelection) {
+      canvas.style.cursor = 'crosshair';
+      return;
+    }
+
+    const handle = this.getResizeHandle(x, y, this.cropSelection);
 
     if (handle) {
       const cursors: Record<string, string> = {
-        'nw': 'nw-resize',
-        'ne': 'ne-resize',
-        'sw': 'sw-resize',
-        'se': 'se-resize',
-        'n': 'n-resize',
-        's': 's-resize',
-        'e': 'e-resize',
-        'w': 'w-resize'
+        'nw': 'nw-resize', 'ne': 'ne-resize', 'sw': 'sw-resize', 'se': 'se-resize',
+        'n': 'n-resize', 's': 's-resize', 'e': 'e-resize', 'w': 'w-resize'
       };
       canvas.style.cursor = cursors[handle];
     } else if (this.isInsideCrop(x, y)) {
@@ -511,8 +680,69 @@ export class ImageEditorComponent implements AfterViewInit {
     }
   }
 
+  updateShapeCursor(x: number, y: number) {
+    const canvas = this.canvasRef.nativeElement;
+
+    if (!this.selectedShape) {
+      canvas.style.cursor = 'default';
+      return;
+    }
+
+    const handle = this.getShapeResizeHandle(x, y, this.selectedShape);
+
+    if (handle) {
+      const cursors: Record<string, string> = {
+        'nw': 'nw-resize', 'ne': 'ne-resize', 'sw': 'sw-resize', 'se': 'se-resize',
+        'n': 'n-resize', 's': 's-resize', 'e': 'e-resize', 'w': 'w-resize'
+      };
+      canvas.style.cursor = cursors[handle];
+    } else {
+      const shapeIndex = this.getShapeAtPoint(x, y);
+      if (shapeIndex !== -1 && this.drawnShapes[shapeIndex] === this.selectedShape) {
+        canvas.style.cursor = 'move';
+      } else {
+        canvas.style.cursor = 'default';
+      }
+    }
+  }
+
+
+  selectShape(shape: Shape) {
+    this.drawnShapes.forEach(s => s.isSelected = false);
+    shape.isSelected = true;
+    this.selectedShape = shape;
+
+    if (!shape.originalPoints && shape.points.length >= 2) {
+      shape.originalPoints = shape.points.map(p => ({ ...p }));
+    }
+
+    this.redrawBase();
+    this.redrawShapes();
+  }
+
+  revertShape() {
+    if (!this.selectedShape || !this.selectedShape.originalPoints) return;
+    this.selectedShape.points = this.selectedShape.originalPoints.map(p => ({ ...p }));
+    this.redrawBase();
+    this.redrawShapes();
+  }
+
+  deleteShape() {
+    if (!this.selectedShape) return;
+
+    const index = this.drawnShapes.indexOf(this.selectedShape);
+    if (index !== -1) {
+      this.drawnShapes.splice(index, 1);
+      this.selectedShape = null;
+      this.redrawBase();
+      this.redrawShapes();
+    }
+  }
+
   saveShape() {
     if (this.currentTool === 'draw') {
+      if (this.currentPath.length < 2) return;
+
       this.drawnShapes.push({
         type: 'draw',
         points: [...this.currentPath],
@@ -522,15 +752,23 @@ export class ImageEditorComponent implements AfterViewInit {
       return;
     }
 
-    this.drawnShapes.push({
+    if (this.startX === this.lastX && this.startY === this.lastY) return;
+
+    const newShape: Shape = {
       type: this.currentTool,
       points: [
         { x: this.startX, y: this.startY },
         { x: this.lastX, y: this.lastY }
       ],
       color: this.drawColor,
-      width: this.lineWidth
-    });
+      width: this.lineWidth,
+      originalPoints: [
+        { x: this.startX, y: this.startY },
+        { x: this.lastX, y: this.lastY }
+      ]
+    };
+
+    this.drawnShapes.push(newShape);
   }
 
   redrawShapes() {
@@ -538,14 +776,31 @@ export class ImageEditorComponent implements AfterViewInit {
       this.ctx.strokeStyle = s.color;
       this.ctx.lineWidth = s.width;
 
-      if (s.type === 'draw') this.drawPath(s.points);
-
-      if (s.type === 'rectangle' || s.type === 'dottedRectangle') {
+      if (s.type === 'draw') {
+        this.drawPath(s.points);
+      }
+      // || s.type === 'rectangle'
+      if (s.type === 'rectangle') {
         this.drawRect(s.points[0].x, s.points[0].y, s.points[1].x, s.points[1].y);
       }
-
-      if (s.type === 'circle' || s.type === 'dottedCircle') {
+      if (s.type === 'dottedRectangle') {
+        this.ctx.setLineDash(s.type === 'dottedRectangle' ? [5, 5] : []);
+        this.drawRect(s.points[0].x, s.points[0].y, s.points[1].x, s.points[1].y);
+        this.ctx.setLineDash([]);
+      }
+      if (s.type === 'circle') {
         this.drawCircle(s.points[0].x, s.points[0].y, s.points[1].x, s.points[1].y);
+      }
+
+      if (s.type === 'dottedCircle' || s.type === 'circle') {
+        this.ctx.setLineDash(s.type === 'dottedCircle' ? [5, 5] : []);
+        this.drawCircle(s.points[0].x, s.points[0].y, s.points[1].x, s.points[1].y);
+        this.ctx.setLineDash([]);
+      }
+
+      if (s.isSelected && (s.type === 'rectangle' || s.type === 'dottedRectangle' ||
+        s.type === 'circle' || s.type === 'dottedCircle')) {
+        this.drawShapeResizeHandles(s);
       }
     }
   }
@@ -570,12 +825,7 @@ export class ImageEditorComponent implements AfterViewInit {
     return -1;
   }
 
-  isInsideCircle(
-    x: number,
-    y: number,
-    center: { x: number; y: number },
-    edge: { x: number; y: number }
-  ) {
+  isInsideCircle(x: number, y: number, center: { x: number; y: number }, edge: { x: number; y: number }) {
     const r = Math.hypot(edge.x - center.x, edge.y - center.y);
     const d = Math.hypot(x - center.x, y - center.y);
     return d <= r;
@@ -597,10 +847,45 @@ export class ImageEditorComponent implements AfterViewInit {
     };
   }
 
+
+  // applyCrop() {
+  //   if (!this.cropSelection) return;
+
+  //   const { x, y, width, height } = this.cropSelection;
+
+  //   const data = this.ctx.getImageData(
+  //     Math.min(x, x + width),
+  //     Math.min(y, y + height),
+  //     Math.abs(width),
+  //     Math.abs(height)
+  //   );
+
+  //   const c = this.canvasRef.nativeElement;
+  //   c.width = Math.abs(width);
+  //   c.height = Math.abs(height);
+
+  //   this.ctx.putImageData(data, 0, 0);
+
+  //   this.ctx.filter = `brightness(${this.brightness}%)`;
+  //   this.ctx.drawImage(c, 0, 0);
+  //   this.ctx.filter = 'none';
+
+  //   this.imageUrl = c.toDataURL();
+  //   this.img.src = this.imageUrl;
+
+  //   this.cropSelection = null;
+  //   this.drawnShapes = [];
+  //   this.selectedShape = null;
+
+  //   this.redrawBase();
+  // }
   applyCrop() {
     if (!this.cropSelection) return;
 
     const { x, y, width, height } = this.cropSelection;
+
+    this.redrawBase();
+    this.redrawShapes();
 
     const data = this.ctx.getImageData(
       Math.min(x, x + width),
@@ -615,23 +900,44 @@ export class ImageEditorComponent implements AfterViewInit {
 
     this.ctx.putImageData(data, 0, 0);
 
-    this.ctx.filter = `brightness(${this.brightness}%)`;
-    this.ctx.drawImage(c, 0, 0);
-    this.ctx.filter = 'none';
-
-    // Update current image URL but NOT the original
     this.imageUrl = c.toDataURL();
-    this.img.src = this.imageUrl;
 
     this.cropSelection = null;
     this.drawnShapes = [];
+    this.selectedShape = null;
+
+    this.img.onload = () => {
+      c.width = this.img.width;
+      c.height = this.img.height;
+      this.redrawBase();
+    };
+    this.img.src = this.imageUrl;
   }
 
   save() {
+    const wasCropActive = this.cropSelection !== null;
+    const tempCropSelection = this.cropSelection;
+
+    this.cropSelection = null;
+    this.selectedShape = null;
+    this.drawnShapes.forEach(s => s.isSelected = false);
+
+    this.redrawBase();
+    this.redrawShapes();
+
     this.saved.emit({
       url: this.canvasRef.nativeElement.toDataURL(),
       caption: this.caption,
       enlarged: this.enlarged
     });
+
+    if (wasCropActive) {
+      this.cropSelection = tempCropSelection;
+      this.redrawBase();
+      if (this.cropSelection) {
+        this.drawCropOverlay();
+      }
+      this.redrawShapes();
+    }
   }
 }

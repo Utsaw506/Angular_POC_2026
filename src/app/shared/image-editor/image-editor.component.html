@@ -3,18 +3,25 @@
 
     <div class="toolbar">
 
-      <button class="tool" (click)="setTool('draw')" [class.active]="currentTool==='draw'">
+      <button class="tool" (click)="setTool('select')" [class.active]="currentTool==='select'"
+        title="Select & Resize Shapes">
+        <mat-icon fontSet="material-symbols-outlined">near_me</mat-icon>
+      </button>
+
+      <button class="tool" (click)="setTool('draw')" [class.active]="currentTool==='draw'" title="Draw Freehand">
         <mat-icon fontSet="material-symbols-outlined">edit</mat-icon>
       </button>
 
-      <button class="tool" (click)="setTool('rectangle')" [class.active]="currentTool==='rectangle'">▢</button>
+      <button class="tool" (click)="setTool('rectangle')" [class.active]="currentTool==='rectangle'"
+        title="Rectangle">▢</button>
 
-      <button class="tool" (click)="setTool('circle')" [class.active]="currentTool==='circle'">◯</button>
+      <button class="tool" (click)="setTool('circle')" [class.active]="currentTool==='circle'" title="Circle">◯</button>
 
-      <button class="tool" (click)="setTool('dottedRectangle')"
-        [class.active]="currentTool==='dottedRectangle'">▭</button>
+      <button class="tool" (click)="setTool('dottedRectangle')" [class.active]="currentTool==='dottedRectangle'"
+        title="Dotted Rectangle">▭</button>
 
-      <button class="tool" (click)="setTool('dottedCircle')" [class.active]="currentTool==='dottedCircle'">⬭</button>
+      <button class="tool" (click)="setTool('dottedCircle')" [class.active]="currentTool==='dottedCircle'"
+        title="Dotted Circle">⬭</button>
 
       <span class="label">Color:</span>
       <input type="color" [(ngModel)]="drawColor">
@@ -22,7 +29,7 @@
       <span class="label">Width:</span>
       <input type="range" min="1" max="20" [(ngModel)]="lineWidth">
 
-      <!--Brightness -->
+      <!-- Brightness -->
       <span class="label">Brightness:</span>
       <input type="range" min="50" max="200" [(ngModel)]="brightness" (input)="redrawBase(); redrawShapes()">
 
@@ -35,6 +42,15 @@
 
       <button class="action" *ngIf="currentTool==='crop' && cropSelection !== null" (click)="applyCrop()">
         Apply Crop
+      </button>
+
+      <button class="action" *ngIf="selectedShape" (click)="revertShape()" title="Revert shape to original size">
+        ↶ Revert
+      </button>
+
+      <button class="action" *ngIf="selectedShape" (click)="deleteShape()" title="Delete selected shape"
+        style="background: #dc3545;">
+        🗑️ Delete
       </button>
 
       <button class="action" (click)="rotate('left')">⟲</button>
@@ -64,6 +80,9 @@
       </div>
 
       <div class="footer-btns">
+
+
+
         <button class="btn save" (click)="save()">Save</button>
         <button class="btn close" (click)="closed.emit()">Close</button>
       </div>
